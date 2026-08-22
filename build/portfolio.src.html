@@ -89,7 +89,7 @@
       linear-gradient(90deg, var(--scrim) 0%, rgba(4,5,7,0.45) 45%, transparent 78%),
       linear-gradient(0deg, var(--scrim) 0%, transparent 55%);
   }
-  header .lead { position: relative; z-index: 1; max-width: 54ch; }
+  header .lead { position: relative; z-index: 1; max-width: 60ch; }
 
   /* Monospace is wide by design, so display sizes need the tracking pulled in
      hard or the word falls apart across the screen. */
@@ -109,7 +109,7 @@
     color: var(--muted); margin: 0 0 1.1rem;
   }
 
-  .standfirst { margin: 0; color: var(--text); max-width: 48ch; }
+  .standfirst { margin: 0; color: var(--text); max-width: 60ch; }
   .standfirst strong { color: var(--accent); font-weight: 400; }
 
   /* ---- headings ---- */
@@ -1392,7 +1392,7 @@
       "  col *= mix(0.10, 1.0, vig);",
       // The intro tone maps once in its post chain; there is none here, so it
       // happens inline. Without it the neon clips to flat white.
-      "  fragColor = vec4(encode_srgb(tonemap(col)), 1.0);",
+      "  fragColor = vec4(encode_srgb(tonemap(col * 0.55)), 1.0);",
       "}"
     ].join("\n");
 
