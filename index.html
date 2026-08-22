@@ -1,0 +1,1585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Real-time rendering by sh0drun. Atlas, a deferred PBR engine written from scratch, a 64k demoscene intro, and Casablanca rendered in real time.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080A0E">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sh0drun.dev/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sh0drun.dev/">
+<meta property="og:title" content="sh0drun">
+<meta property="og:description" content="Real-time rendering by sh0drun. Atlas, a deferred PBR engine written from scratch, a 64k demoscene intro, and Casablanca rendered in real time.">
+<meta property="og:image" content="https://sh0drun.dev/assets/img/hero.jpg">
+<meta property="og:image:width" content="1600">
+<meta property="og:image:height" content="900">
+<meta name="twitter:card" content="summary_large_image">
+<title>sh0drun</title>
+<style>
+  /* One family throughout. Display is the same mono at 700, not a second face.
+     Bitmap is for small labels only. */
+  @font-face {
+    font-family: "Plex";
+    src: url("assets/fonts/PlexMono-400.woff2") format("woff2");
+    font-weight: 400; font-style: normal; font-display: block;
+  }
+  @font-face {
+    font-family: "Plex";
+    src: url("assets/fonts/PlexMono-700.woff2") format("woff2");
+    font-weight: 700; font-style: normal; font-display: block;
+  }
+  @font-face {
+    font-family: "Bitmap";
+    src: url("assets/fonts/Silkscreen.woff2") format("woff2");
+    font-weight: 400; font-style: normal; font-display: block;
+  }
+
+  /* Dark only. A light ground fights every image on the page. No hue in the
+     interface either, the renders carry enough. Neutrals take a cool cast. */
+  :root {
+    --ground:  #080A0E;
+    --raise:   #12161C;
+    --line:    rgba(216,222,230,0.14);
+    --text:    #D8DEE6;
+    --muted:   rgba(216,222,230,0.56);
+    --dim:     rgba(216,222,230,0.33);
+    --accent:  #FFFFFF;
+    --scrim:   rgba(5,7,10,0.76);
+
+    --display: "Plex", ui-monospace, monospace;
+    --mono: "Plex", ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --label: "Bitmap", "Plex", ui-monospace, monospace;
+    --pad: clamp(1.25rem, 5vw, 5rem);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+  }
+
+  .wrap { display: flex; flex-direction: column; }
+
+  section { padding: clamp(3.5rem, 9vw, 7rem) var(--pad); border-top: 1px solid var(--line); }
+  .measure { max-width: 62ch; }
+
+  /* ---- hero ---- */
+
+  header {
+    position: relative;
+    min-height: min(86vh, 780px);
+    display: flex;
+    align-items: flex-end;
+    padding: var(--pad);
+    overflow: hidden;
+  }
+  header .bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(0.9);
+  }
+
+  /* The live shader sits over the still. It only reveals itself once the
+     context, the compile and the link have all succeeded, so anything without
+     WebGL2 keeps the image and never sees a blank rectangle. */
+  header .gl {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    display: block;
+    opacity: 0;
+    transition: opacity 700ms ease;
+  }
+  header .gl.on { opacity: 1; }
+  /* Horizontal scrim, the device both references use to keep type legible
+     over an image without dimming the whole picture. */
+  header::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, var(--scrim) 0%, rgba(4,5,7,0.45) 45%, transparent 78%),
+      linear-gradient(0deg, var(--scrim) 0%, transparent 55%);
+  }
+  header .lead { position: relative; z-index: 1; max-width: 54ch; }
+
+  /* Monospace is wide by design, so display sizes need the tracking pulled in
+     hard or the word falls apart across the screen. */
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2.75rem, 12vw, 8.5rem);
+    line-height: 0.88;
+    letter-spacing: -0.055em;
+    text-transform: uppercase;
+    margin: 0 0 1.25rem;
+  }
+
+  .role {
+    font-family: var(--label); font-size: 0.6875rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 1.1rem;
+  }
+
+  .standfirst { margin: 0; color: var(--text); max-width: 48ch; }
+  .standfirst strong { color: var(--accent); font-weight: 400; }
+
+  /* ---- headings ---- */
+
+  h2, h3 {
+    font-family: var(--display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.035em;
+    margin: 0;
+  }
+  section h3 {
+    font-size: clamp(1.6rem, 4.6vw, 3rem);
+    line-height: 0.98;
+    margin: 0 0 1.5rem;
+    color: var(--accent);
+  }
+  .lede { margin: 0 0 2.5rem; color: var(--muted); max-width: 62ch; }
+
+  /* ---- work: the image is the item, text sits on it ---- */
+
+  .work { display: flex; flex-direction: column; }
+
+  .record {
+    position: relative;
+    border-top: 1px solid var(--line);
+    min-height: min(78vh, 680px);
+    display: flex;
+    align-items: flex-end;
+    padding: var(--pad);
+    overflow: hidden;
+  }
+  .record .still {
+    position: absolute; inset: 0;
+    display: block; border: 0; line-height: 0;
+  }
+  .record .still img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  .record::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, var(--scrim) 0%, rgba(4,5,7,0.5) 42%, transparent 75%),
+      linear-gradient(0deg, var(--scrim) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .record .body { position: relative; z-index: 1; max-width: 46ch; }
+  .record:hover .still img { filter: saturate(1.05); }
+
+  .record h2 {
+    font-size: clamp(1.6rem, 4.5vw, 2.9rem);
+    line-height: 0.98;
+    margin: 0 0 0.9rem;
+  }
+  .record h2 a { color: inherit; text-decoration: none; }
+  .record h2 a:hover { color: var(--accent); }
+
+  .meta {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 0 1.25rem;
+    margin: 0 0 1rem; padding: 0;
+  }
+
+  .note { margin: 0 0 1.25rem; color: var(--text); }
+  section .note { max-width: 62ch; color: var(--muted); }
+
+  /* Links inside running text. Underlined rather than coloured, since the
+     palette has no hue to spend and white already means emphasis. */
+  .note a, .stack a {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--dim);
+  }
+  .note a:hover, .stack a:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+  }
+  .note a:focus-visible, .stack a:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 3px;
+  }
+
+  /* ---- roles ----
+     A Gantt, not a single axis. Seven roles with labels cannot share one
+     horizontal line: the three month contracts collide with the three year
+     ones. Rows kill the collision, the bars keep the true proportions. */
+  .roles {
+    list-style: none; margin: 0 0 1.75rem; padding: 0;
+    display: flex; flex-direction: column; gap: 0.15rem;
+    max-width: 78rem;
+  }
+  .roles li {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 22rem) minmax(0, 1fr);
+    align-items: center; gap: 0 1.25rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .roles li:last-child { border-bottom: 0; }
+
+  .roles .when {
+    font-family: var(--mono); font-size: 0.75rem;
+    font-variant-numeric: tabular-nums; color: var(--dim);
+  }
+  .roles .what { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); }
+  .roles .what b {
+    font-family: var(--display); font-weight: 700;
+    font-size: 1rem; text-transform: uppercase; letter-spacing: -0.02em;
+    color: var(--text); margin-right: 0.5rem;
+  }
+  .roles .now .what b { color: var(--accent); }
+  .roles .off .what b { color: var(--dim); }
+
+  /* The bar sits on a shared 2018 to 2026 axis, so a row position is a date. */
+  .roles .track { position: relative; height: 1.4rem; }
+  .roles .bar {
+    position: absolute; top: 50%; height: 0.5rem;
+    left: var(--a); width: var(--w);
+    transform: translateY(-50%) scaleX(0); transform-origin: left center;
+    background: var(--muted);
+    transition: transform 620ms cubic-bezier(.22,.61,.36,1);
+  }
+  .roles .now .bar { background: var(--accent); }
+  /* Time off, not a role: drawn hollow. */
+  .roles .off .bar { background: none; border: 1px dashed var(--dim); }
+  .roles.drawn .bar { transform: translateY(-50%) scaleX(1); }
+  .roles li:nth-child(2) .bar { transition-delay:   0ms; }
+  .roles li:nth-child(3) .bar { transition-delay:  70ms; }
+  .roles li:nth-child(4) .bar { transition-delay: 130ms; }
+  .roles li:nth-child(5) .bar { transition-delay: 180ms; }
+  .roles li:nth-child(6) .bar { transition-delay: 220ms; }
+  .roles li:nth-child(7) .bar { transition-delay: 270ms; }
+  .roles li:nth-child(8) .bar { transition-delay: 330ms; }
+
+  /* Year marks live in their own row so they can never cross a bar. */
+  .roles .scale { border-bottom: 1px solid var(--line); padding-bottom: 0.1rem; }
+  .roles .scale .track { height: 1rem; }
+  .roles .scale i {
+    position: absolute; left: var(--x); bottom: 0;
+    font-style: normal; font-family: var(--mono);
+    font-size: 0.6875rem; font-variant-numeric: tabular-nums; color: var(--dim);
+  }
+
+  @media (max-width: 60rem) {
+    .roles li { grid-template-columns: 6rem minmax(0, 1fr); }
+    .roles .track { grid-column: 1 / -1; height: 1rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .roles .bar { transition: none; } }
+
+  /* ---- other projects ----
+     Rows, not panels. These are worth showing but must not compete with the
+     renderers for attention, so they get one line of description each. */
+  .also { list-style: none; margin: 0; padding: 0; max-width: 74rem; }
+  .also li {
+    display: grid;
+    grid-template-columns: minmax(0, 16rem) 5rem minmax(0, 1fr);
+    align-items: baseline; gap: 0 1.5rem;
+    padding: 0.85rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .also li:last-child { border-bottom: 1px solid var(--line); }
+  .also a {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(1rem, 2vw, 1.35rem);
+    text-transform: uppercase; letter-spacing: -0.02em;
+    color: var(--text); text-decoration: none;
+  }
+  .also a:hover { color: var(--accent); }
+  .also a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .also .lang {
+    font-family: var(--mono); font-size: 0.6875rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim);
+  }
+  .also p {
+    margin: 0; font-family: var(--mono); font-size: 0.8125rem;
+    line-height: 1.6; color: var(--muted);
+  }
+  @media (max-width: 60rem) {
+    .also li { grid-template-columns: minmax(0, 1fr) 5rem; row-gap: 0.4rem; }
+    .also p { grid-column: 1 / -1; }
+  }
+  /* ---- grouped technology listing ---- */
+  .skills { display: flex; flex-direction: column; gap: 0.9rem; margin: 0; }
+  .skills .grp { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem 0.75rem; }
+  .skills h4 {
+    margin: 0; min-width: 8.5rem;
+    font-family: var(--mono); font-weight: 400;
+    font-size: 0.75rem; color: var(--dim);
+  }
+  .skills h4::before { content: "// "; }
+  .skills span {
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--text);
+    border: 1px solid var(--line);
+    padding: 0.15rem 0.5rem;
+  }
+  .skills span.hi { color: var(--accent); border-color: var(--accent); }
+
+  .systems {
+    font-family: var(--mono); font-size: 0.75rem;
+    line-height: 1.8; color: var(--muted);
+    margin: 0; padding: 0; list-style: none;
+    columns: 2; column-gap: 2rem;
+  }
+  .systems li { break-inside: avoid; }
+  .systems li::before { content: "> "; color: var(--accent); }
+
+  /* ---- data blocks ---- */
+
+  .stack {
+    display: grid; grid-template-columns: 11rem 1fr;
+    gap: 0.35rem 2rem;
+    font-family: var(--mono); font-size: 0.8125rem;
+    line-height: 1.7; margin: 2rem 0 0; max-width: 76ch;
+  }
+  .stack dt {
+    color: var(--accent); text-transform: uppercase;
+    font-size: 0.6875rem; letter-spacing: 0.14em; padding-top: 0.35em;
+  }
+  .stack dd { margin: 0; color: var(--text); }
+  .stack code { font-family: var(--mono); color: var(--accent); }
+
+  /* ---- decomposition and galleries ---- */
+
+  .decomp { display: flex; flex-direction: column; gap: 1rem; }
+
+  .stage, .shot {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--raise);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .stage { --pos: 55%; touch-action: pan-y; }
+
+  .stage img.lay, .shot img.lay {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; display: none;
+    user-select: none; -webkit-user-drag: none;
+  }
+  .stage img.lay.on, .shot img.lay.on { display: block; }
+  .stage img.final.on { clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+
+  .divider {
+    position: absolute; top: 0; bottom: 0;
+    left: var(--pos); width: 1px;
+    background: var(--accent);
+    pointer-events: none; z-index: 2;
+  }
+  .divider::after {
+    content: ""; position: absolute;
+    top: 50%; left: 50%;
+    width: 1.75rem; height: 1.75rem;
+    transform: translate(-50%, -50%);
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  /* Must stay under the annotations or it swallows their hover and click. */
+  .grab {
+    position: absolute; inset: 0;
+    width: 100%; margin: 0; padding: 0;
+    opacity: 0; cursor: ew-resize;
+    -webkit-appearance: none; appearance: none;
+    background: transparent; z-index: 3;
+  }
+  .grab:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .edge {
+    position: absolute; bottom: 0.75rem;
+    font-family: var(--mono); font-size: 0.625rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.95);
+    pointer-events: none; z-index: 2;
+  }
+  .edge.l { left: 1rem; }
+  .edge.r { right: 1rem; }
+
+  .leads { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
+  .leads line {
+    stroke: var(--accent); stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0; transition: opacity 140ms ease;
+  }
+
+  .anno {
+    position: absolute;
+    width: 1.25rem; height: 1.25rem;
+    transform: translate(-50%, -50%);
+    padding: 0; margin: 0;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    background: rgba(7,8,11,0.5);
+    cursor: pointer; z-index: 5;
+  }
+  .anno::before {
+    content: ""; position: absolute;
+    top: 50%; left: 50%; width: 3px; height: 3px;
+    transform: translate(-50%, -50%);
+    background: var(--accent); border-radius: 50%;
+  }
+  .anno:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .stage[data-subject="w"] .anno { display: block; }
+  .stage .anno { display: none; }
+
+  .panel {
+    position: absolute;
+    left: var(--lx); top: var(--ly);
+    width: 13rem; padding: 0.6rem 0.75rem;
+    background: rgba(7,8,11,0.88);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    font-family: var(--mono); font-size: 0.6875rem;
+    line-height: 1.6; text-align: left;
+    pointer-events: none; opacity: 0;
+    transition: opacity 140ms ease; z-index: 6;
+  }
+  .panel.left  { transform: translate(-100%, -50%); }
+  .panel.right { transform: translate(0, -50%); }
+  .panel::before {
+    content: ""; position: absolute;
+    top: 50%; width: 0.5rem; height: 1px; background: var(--accent);
+  }
+  .panel.left::before  { right: -0.5rem; }
+  .panel.right::before { left: -0.5rem; }
+
+  .stage[data-active="a"] #lead-a, .stage[data-active="b"] #lead-b,
+  .stage[data-active="c"] #lead-c, .stage[data-active="d"] #lead-d { opacity: 1; }
+  .stage[data-active="a"] #panel-a, .stage[data-active="b"] #panel-b,
+  .stage[data-active="c"] #panel-c, .stage[data-active="d"] #panel-d { opacity: 1; }
+
+  /* ---- selectors ---- */
+
+  .subjects, .channels {
+    display: flex; flex-wrap: wrap;
+    margin: 0; padding: 0; list-style: none;
+  }
+  .subjects { gap: 0 1.5rem; margin-bottom: 0.5rem; }
+  .subjects button {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(1rem, 2.2vw, 1.4rem);
+    text-transform: uppercase; letter-spacing: 0.01em;
+    padding: 0.2rem 0; color: var(--dim);
+    background: none; border: none; border-bottom: 2px solid transparent;
+    cursor: pointer;
+  }
+  .subjects button:hover { color: var(--text); }
+  .subjects button[aria-pressed="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+  .subjects.shade button { font-size: clamp(0.875rem, 1.6vw, 1.05rem); }
+
+  .channels { gap: 0.4rem; }
+  .channels button {
+    font-family: var(--mono); font-size: 0.6875rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.4rem 0.75rem;
+    color: var(--muted); background: var(--raise);
+    border: 1px solid var(--line); cursor: pointer;
+  }
+  .channels button:hover { color: var(--text); }
+  .channels button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: transparent; }
+
+  .subjects button:focus-visible, .channels button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+
+  .caption {
+    font-family: var(--mono); font-size: 0.8125rem;
+    color: var(--muted); margin: 0; min-height: 3.4em; max-width: 70ch;
+  }
+
+  /* ---- size chart ---- */
+
+  .chart { margin: 0 0 2rem; max-width: 74rem; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart .ceil {
+    stroke: var(--dim); stroke-width: 1; stroke-dasharray: 3 4;
+    vector-effect: non-scaling-stroke;
+  }
+  .chart .tick {
+    fill: var(--muted); font-family: var(--mono);
+    font-size: 11px; font-variant-numeric: tabular-nums;
+  }
+
+  /* Both lines draw in on scroll. The ceiling does not, the budget never moved.
+     Packed climbs slower than raw so the gap opens as you watch. */
+  .chart .raw {
+    fill: none; stroke: var(--muted); stroke-width: 1.5;
+    stroke-linejoin: round; vector-effect: non-scaling-stroke;
+    transition: stroke-dashoffset 1.5s cubic-bezier(.25,.6,.35,1);
+  }
+  .chart .packed {
+    fill: none; stroke: var(--accent); stroke-width: 2;
+    stroke-linejoin: round; vector-effect: non-scaling-stroke;
+    transition: stroke-dashoffset 2.3s cubic-bezier(.25,.6,.35,1) 0.12s;
+  }
+  .chart .dot { fill: var(--accent); opacity: 0; transition: opacity 0.45s ease 1.6s; }
+  .chart.drawn .dot { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chart .raw, .chart .packed, .chart .dot { transition: none; }
+  }
+  .chart figcaption {
+    display: flex; flex-wrap: wrap; gap: 0 1.5rem; margin-top: 1rem;
+    font-family: var(--mono); font-size: 0.6875rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  }
+  .chart .key { display: inline-block; width: 1.1rem; height: 0; margin-right: 0.5rem; vertical-align: middle; }
+  .chart .key.raw { border-top: 2px solid var(--muted); }
+  .chart .key.packed { border-top: 2px solid var(--accent); }
+
+  /* ---- contact ---- */
+
+  .contact {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(1.25rem, 4vw, 2.5rem);
+    text-transform: uppercase;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .contact a { color: var(--text); text-decoration: none; }
+  .contact a:hover { color: var(--accent); }
+  .contact a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  @media (max-width: 48rem) {
+    .systems { columns: 1; }
+    .stack { grid-template-columns: 1fr; gap: 0; }
+    .stack dd { margin-bottom: 1.1rem; }
+    .record, header { min-height: 62vh; }
+  }
+
+  /* ---- one screen per section ----------------------------------------------
+     Every section is a full viewport panel and the scroll snaps to it, so a
+     scroll always lands on the next thing rather than halfway between two.
+     dvh rather than vh because mobile browsers change the visible height as
+     the address bar hides, and vh would leave the last line clipped. */
+  html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  header, .record, section {
+    min-height: 100vh;
+    min-height: 100dvh;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  header, .record { align-items: stretch; }
+  header .lead, .record .body { width: 100%; }
+
+  section { padding: clamp(1.5rem, 4vh, 3.5rem) var(--pad); }
+  section h3 { margin-bottom: clamp(0.5rem, 1.5vh, 1.25rem); }
+  .lede { margin-bottom: clamp(1rem, 2.5vh, 2rem); }
+
+  /* The stage keeps 16:9, so cap it by HEIGHT and let width follow. Capping
+     width instead would make it taller than the screen on a narrow window. */
+  .stage, .shot {
+    width: min(100%, calc(52dvh * 16 / 9));
+    max-width: 100%;
+    align-self: center;
+  }
+
+  /* The stage must NOT clip: the buffer images are inset:0 so they cannot
+     overflow, and the wipe is done with clip-path rather than by clipping the
+     box. The only thing overflow:hidden achieved here was cutting the ends off
+     the callout panels. */
+  .stage { overflow: visible; }
+  .decomp { gap: clamp(0.5rem, 1.5vh, 1rem); }
+  .caption { min-height: 0; }
+
+  .chart { max-height: 40dvh; }
+  .chart svg { max-height: 34dvh; }
+  .stack { margin-top: clamp(0.75rem, 2vh, 2rem); }
+
+  /* Spec lists sit under a visual in the densest sections. Flowing them two
+     pairs to a row spends horizontal space instead of vertical, which is what
+     decides whether the section fits on one screen. */
+  @media (min-width: 62rem) {
+    .stack { grid-template-columns: 10rem minmax(0,1fr) 10rem minmax(0,1fr); max-width: none; }
+  }
+
+  /* A section taller than the screen would trap a mandatory snap, so the two
+     densest ones drop to a single centred column and tighten their leading. */
+  @media (max-height: 46rem) {
+    .systems { font-size: 0.6875rem; line-height: 1.6; }
+    .stack { font-size: 0.75rem; line-height: 1.5; }
+    .stage, .shot { width: min(100%, calc(44dvh * 16 / 9)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+
+  <header>
+    <img class="bg" src="assets/img/hero.jpg" alt="Raytraced spheres and coloured laser beams over an infinite checkerboard.">
+    <canvas class="gl" id="glhero" aria-hidden="true"></canvas>
+    <div class="lead">
+      <p class="role">Real-time rendering</p>
+      <h1>sh0drun</h1>
+      <p class="standfirst">
+        I'm Anass Razik. I build a lot of different things, a compiled language, parsers,
+        tools, but computer graphics is the one I keep returning to. I write renderers from
+        scratch in C++, in Java, in TypeScript, whatever the target is, with
+        <strong>no engine underneath</strong>.
+      </p>
+    </div>
+  </header>
+
+  <section>
+    <h3>Who</h3>
+    <p class="lede">
+      Senior software engineer in Casablanca. A master's in computer
+      systems engineering, then eight years of mostly backend work across Morocco
+      and Bangkok, with graphics running alongside the whole time.
+    </p>
+
+    <!-- One row per role. A single horizontal axis could not carry seven roles
+         and their labels: the three month contracts collided with the three year
+         ones and the year marks ran through the bars. Rows remove the collision
+         entirely while the bars keep the real proportions. -->
+    <ol class="roles">
+      <li class="scale" aria-hidden="true">
+        <span class="when"></span><span class="what"></span>
+        <span class="track">
+          <i style="--x:0%">2018</i><i style="--x:21.8%">2020</i><i style="--x:45.5%">2022</i>
+          <i style="--x:69.3%">2024</i><i style="--x:93.1%">2026</i>
+        </span>
+      </li>
+
+      <li>
+        <span class="when">2018 to 2021</span>
+        <span class="what"><b>Sofrecom</b> Java JEE and Angular developer, Morocco</span>
+        <span class="track"><span class="bar" style="--a:0%;--w:40.6%"></span></span>
+      </li>
+      <li>
+        <span class="when">2021 to 2022</span>
+        <span class="what"><b>Agoda</b> Software engineer, Bangkok</span>
+        <span class="track"><span class="bar" style="--a:41.6%;--w:9.9%"></span></span>
+      </li>
+      <li class="off">
+        <span class="when">2022 to 2023</span>
+        <span class="what"><b>Career break</b></span>
+        <span class="track"><span class="bar" style="--a:52.5%;--w:5.9%"></span></span>
+      </li>
+      <li>
+        <span class="when">2023</span>
+        <span class="what"><b>ExxonMobil</b> System analyst, Bangkok</span>
+        <span class="track"><span class="bar" style="--a:59.4%;--w:3.0%"></span></span>
+      </li>
+      <li>
+        <span class="when">2023</span>
+        <span class="what"><b>Dbot Software</b> Software engineer, Bangkok</span>
+        <span class="track"><span class="bar" style="--a:62.4%;--w:5.9%"></span></span>
+      </li>
+      <li>
+        <span class="when">2024 to 2025</span>
+        <span class="what"><b>EssilorLuxottica</b> Java software engineer, Bangkok</span>
+        <span class="track"><span class="bar" style="--a:69.3%;--w:21.8%"></span></span>
+      </li>
+      <li class="now">
+        <span class="when">2026</span>
+        <span class="what"><b>SQLI</b> Software engineer, Casablanca</span>
+        <span class="track"><span class="bar" style="--a:94.1%;--w:5.9%"></span></span>
+      </li>
+    </ol>
+
+    <p class="note">
+      sh0drun is a signature, not a title. The first code was Python inside Blender in
+      2007, aged thirteen: pasted plugin snippets that cleared a scene, printed the names
+      of objects, moved one of them. I changed the numbers and the strings and watched the
+      viewport change. The first thing built on purpose was a paint program on an HTML
+      canvas, well before university.
+    </p>
+
+    <p class="note">
+      Graphics has been the second track ever since.
+      <a href="https://github.com/sh0drun/WGFW" target="_blank" rel="noopener">WGFW</a>
+      starts two months into the first job,
+      <a href="https://github.com/sh0drun/dtgl" target="_blank" rel="noopener">dtgl</a>
+      in 2021, Atlas in 2026. Demoscene groups have been fitting whole worlds into a few
+      kilobytes for thirty years, and once you have seen that, reaching for an engine to
+      draw three primitives on a checkerboard feels like the wrong instinct.
+    </p>
+  </section>
+
+  <section>
+    <h3>Inside a frame</h3>
+    <p class="lede">
+      Three frames from the reel, and the buffers each one is assembled from. Pick a scene,
+      drag the divider, switch the channel underneath. Every image is engine output at the
+      same camera. Nothing here is a diagram.
+    </p>
+
+    <div class="decomp">
+      <ul class="subjects" id="subjects">
+        <li><button aria-pressed="true"  data-s="w">The World</button></li>
+        <li><button aria-pressed="false" data-s="f">Fractal</button></li>
+        <li><button aria-pressed="false" data-s="s">Sanctuary</button></li>
+      </ul>
+
+      <div class="stage" id="stage">
+        <img class="lay chan on" data-k="w_albedo"   src="assets/img/w_albedo.jpg"   alt="Voxel world albedo buffer.">
+        <img class="lay chan"    data-k="w_normal"   src="assets/img/w_normal.jpg"   alt="Voxel world normal buffer.">
+        <img class="lay chan"    data-k="w_worldpos" src="assets/img/w_worldpos.jpg" alt="Voxel world position buffer.">
+        <img class="lay chan"    data-k="w_depth"    src="assets/img/w_depth.jpg"    alt="Voxel world depth buffer.">
+        <img class="lay chan"    data-k="f_albedo"   src="assets/img/f_albedo.jpg"   alt="Fractal albedo buffer.">
+        <img class="lay chan"    data-k="f_normal"   src="assets/img/f_normal.jpg"   alt="Fractal normal buffer.">
+        <img class="lay chan"    data-k="f_worldpos" src="assets/img/f_worldpos.jpg" alt="Fractal world position buffer.">
+        <img class="lay chan"    data-k="f_depth"    src="assets/img/f_depth.jpg"    alt="Fractal depth buffer.">
+        <img class="lay chan"    data-k="s_normal"   src="assets/img/s_normal.jpg"   alt="Sanctuary normal buffer.">
+        <img class="lay chan"    data-k="s_worldpos" src="assets/img/s_worldpos.jpg" alt="Sanctuary world position buffer.">
+
+        <img class="lay final on" data-k="w_final" src="assets/img/w_final.jpg" alt="The voxel world, final lit frame.">
+        <img class="lay final"    data-k="f_final" src="assets/img/f_final.jpg" alt="The fractal, final lit frame.">
+        <img class="lay final"    data-k="s_final" src="assets/img/s_final.jpg" alt="The sanctuary arcade, final lit frame.">
+
+        <div class="divider" id="divider"></div>
+        <span class="edge l">Lit</span>
+        <span class="edge r">Buffer</span>
+
+        <input class="grab" id="grab" type="range" min="0" max="100" value="55"
+               aria-label="Wipe between the lit frame and the selected buffer">
+
+        <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <line id="lead-a" x1="53" y1="62" x2="76" y2="76"></line>
+          <line id="lead-b" x1="87" y1="57" x2="66" y2="34"></line>
+          <line id="lead-c" x1="24" y1="66" x2="40" y2="88"></line>
+        </svg>
+
+        <button class="anno" data-id="a" style="left: 53%; top: 62%;" aria-label="Chunk meshing"></button>
+        <button class="anno" data-id="b" style="left: 87%; top: 57%;" aria-label="Noise-driven biomes"></button>
+        <button class="anno" data-id="c" style="left: 24%; top: 66%;" aria-label="Water pass"></button>
+
+        <div class="panel right" id="panel-a" style="--lx: 76%; --ly: 76%;">
+          Chunk meshing. Only block faces with an exposed neighbour are emitted, so the
+          interior of the terrain costs nothing.
+        </div>
+        <div class="panel left" id="panel-b" style="--lx: 66%; --ly: 34%;">
+          Terrain, snowline and foliage all fall out of the same noise field. Nothing
+          here is authored by hand.
+        </div>
+        <div class="panel right" id="panel-c" style="--lx: 40%; --ly: 88%;">
+          Water is a separate translucent pass, drawn over the lit scene rather than into
+          the G-buffer.
+        </div>
+      </div>
+
+      <ul class="channels" id="channels"></ul>
+      <p class="caption" id="caption"></p>
+    </div>
+  </section>
+
+  <div class="work">
+
+    <article class="record">
+      <a class="still" href="https://www.youtube.com/watch?v=13XTC-PXoQw" target="_blank" rel="noopener">
+        <img src="assets/img/descent.jpg" alt="Still from the voxel descent: a fogged surface world of stone towers.">
+      </a>
+      <div class="body">
+      <h2><a href="https://www.youtube.com/watch?v=13XTC-PXoQw" target="_blank" rel="noopener">The Descent</a></h2>
+      <p class="meta">
+        <span>2026</span><span>1:52</span><span>C++ / OpenGL 4.5</span><span>Voxel</span>
+      </p>
+      <p class="note">
+        A journey from a fogged surface world down a shaft into crystal caverns and molten depths,
+        cut into titled chapters. The whole world is voxel terrain, generated and meshed at runtime.
+      </p>
+      <ul class="systems">
+        <li>Procedural voxel generation</li>
+        <li>Chunk meshing</li>
+        <li>Translucent water pass</li>
+        <li>Emissive lava, HDR bloom</li>
+        <li>Distance fog</li>
+        <li>Keyframe director, chapter cards</li>
+      </ul>
+      </div>
+    </article>
+
+    <article class="record">
+      <a class="still" href="https://www.youtube.com/watch?v=tYD8Lvaz0_I" target="_blank" rel="noopener">
+        <img src="assets/img/k64-ruby.jpg" alt="Still from the 64k intro: procedurally generated geometry and lighting.">
+      </a>
+      <div class="body">
+      <h2><a href="https://www.youtube.com/watch?v=tYD8Lvaz0_I" target="_blank" rel="noopener">64k intro in 19 KB</a></h2>
+      <p class="meta">
+        <span>2026</span><span>1:21</span><span>C++ / OpenGL 4.5</span><span>19 KB executable</span>
+      </p>
+      <p class="note">
+        A size-coded demoscene intro that fits in 19 kilobytes. Nothing is loaded from disk:
+        every mesh, material, texture and note is generated at runtime.
+      </p>
+      <ul class="systems">
+        <li>Procedural geometry</li>
+        <li>Procedural texture graph</li>
+        <li>Synthesized soundtrack</li>
+        <li>Keyframe director</li>
+        <li>Executable compression</li>
+        <li>Zero external assets</li>
+      </ul>
+      </div>
+    </article>
+
+
+  </div>
+
+  <section>
+    <h3>Under 64 KB</h3>
+    <p class="lede">
+      Every build of the intro, measured. Raw code and data climb past the 64 KB ceiling;
+      what ships stays at a third of it. The gap between the two lines is the packer.
+    </p>
+
+    <figure class="chart">
+      <svg viewBox="-46 -14 762 262" role="img"
+           aria-label="Executable size over nine days. Raw code and data rises past the 64 KB ceiling while the packed executable stays near 21 KB.">
+        <line class="ceil" x1="0" y1="14" x2="700" y2="14"></line>
+        <text class="tick" x="-8" y="17" text-anchor="end">64 KB</text>
+        <text class="tick" x="-8" y="153" text-anchor="end">21 KB</text>
+        <text class="tick" x="-8" y="209" text-anchor="end">4 KB</text>
+        <polyline class="raw" points="0,200.7 27.4,157.2 31.2,121.8 37.6,113.8 38.2,113.8 42.7,110.6 43.7,107.4 51.4,94.5 66.4,89.7 66.5,89.7 66.8,88.1 70.8,88.1 105.9,81.6 110.6,81.6 124.4,70.3 125.9,70.3 144.6,67.1 146.9,67.1 174.8,60.7 194,52.6 196.5,52.6 295.8,52.6 347.6,43 348.9,43 350.8,43 354.4,43 354.7,41.4 355.1,41.4 355.9,39.8 356.5,41.4 356.6,41.4 383.4,39.8 385.2,38.2 385.7,38.2 387.2,36.6 387.9,36.6 388.5,36.6 388.5,36.6 544.6,10.8 545.9,9.2 546.9,9.2 583.4,10.8 585.4,9.2 585.7,9.2 587.1,9.2 595.9,9.2 597.1,9.2 597.8,10.8 598.2,10.8 612.3,10.8 618.8,10.8 621.1,10.8 700,10.8"></polyline>
+        <polyline class="packed" points="0,205.7 27.4,190.8 31.2,182.6 37.6,181.2 38.2,181.2 42.7,180.4 43.7,179.3 51.4,173.2 66.4,170.4 66.5,170.4 66.8,170.4 70.8,170.4 105.9,168.3 110.6,168 124.4,164.3 125.9,164.3 144.6,163.2 146.9,163.2 174.8,161.5 194,159.3 196.5,159.3 295.8,159.3 347.6,157.1 348.9,156.8 350.8,156.7 354.4,156.7 354.7,156.5 355.1,156.5 355.9,156.5 356.5,156.5 356.6,156.4 383.4,156.4 385.2,155.9 385.7,155.8 387.2,155.4 387.9,155.4 388.5,155.4 388.5,155.4 544.6,151.8 545.9,151.3 546.9,151.6 583.4,151.8 585.4,151.5 585.7,151.5 587.1,151.5 595.9,151.5 597.1,151.4 597.8,151.7 598.2,151.7 612.3,151.7 618.8,151.7 700,151.7"></polyline>
+        <circle class="dot" cx="0" cy="205.7" r="3"></circle>
+        <circle class="dot" cx="700" cy="151.7" r="3"></circle>
+        <text class="tick" x="0" y="238">1 Aug</text>
+        <text class="tick" x="700" y="238" text-anchor="end">9 Aug</text>
+      </svg>
+      <figcaption>
+        <span><span class="key raw"></span>raw code and data</span>
+        <span><span class="key packed"></span>packed executable</span>
+      </figcaption>
+    </figure>
+
+    <dl class="stack">
+      <dt>Final</dt>
+      <dd>21,731 bytes, 33.6% of the 64 KB budget</dd>
+      <dt>Raw</dt>
+      <dd>67,072 bytes of code and data at its peak, over the ceiling on its own</dd>
+      <dt>Shaders</dt>
+      <dd>50,259 bytes of GLSL after minification, inside that 21 KB</dd>
+      <dt>Packer</dt>
+      <dd>kkrunchy <code>--best --refsize 64</code>, two variants benchmarked per build</dd>
+      <dt>Binary</dt>
+      <dd>32-bit x86 PE, no C runtime</dd>
+      <dt>On disk</dt>
+      <dd>Nothing. Geometry, materials and the soundtrack are all generated at startup</dd>
+    </dl>
+
+    <p class="note">
+      53 measured builds over nine days. Regressions were tracked to the byte and reverted
+      when they cost more than they saved. One entry in the log reads
+      &ldquo;noinline on beams helpers: +2 B, reverted&rdquo;.
+    </p>
+  </section>
+
+  <section>
+    <h3>Eight ways to light it</h3>
+    <p class="lede">
+      One sphere, one cube, one torus, raymarched from the same distance field, lit eight
+      different ways, one per bar of the track. Same geometry every time; only the
+      shading model changes.
+    </p>
+
+    <div class="decomp">
+      <ul class="subjects shade" id="shaders">
+        <li><button aria-pressed="true"  data-m="0">PBR</button></li>
+        <li><button aria-pressed="false" data-m="1">Toon</button></li>
+        <li><button aria-pressed="false" data-m="2">Wireframe</button></li>
+        <li><button aria-pressed="false" data-m="3">Iridescent</button></li>
+        <li><button aria-pressed="false" data-m="4">Hatching</button></li>
+        <li><button aria-pressed="false" data-m="5">Fresnel</button></li>
+        <li><button aria-pressed="false" data-m="6">Matcap</button></li>
+        <li><button aria-pressed="false" data-m="7">Gooch</button></li>
+      </ul>
+
+      <div class="shot" id="shadeStage">
+        <img class="lay on" data-m="0" src="assets/img/shade-pbr.jpg" alt="Physically based shading on a sphere, cube and torus.">
+        <img class="lay"    data-m="1" src="assets/img/shade-toon.jpg" alt="Toon shading, diffuse quantised into bands.">
+        <img class="lay"    data-m="2" src="assets/img/shade-wireframe.jpg" alt="Wireframe shading, glowing silhouette edges on dark bodies.">
+        <img class="lay"    data-m="3" src="assets/img/shade-iridescent.jpg" alt="Iridescent shading, thin-film colour shifting with view angle.">
+        <img class="lay"    data-m="4" src="assets/img/shade-hatching.jpg" alt="Hatching, stroke density standing in for tone.">
+        <img class="lay"    data-m="5" src="assets/img/shade-fresnel.jpg" alt="Fresnel rim weighting at grazing angles.">
+        <img class="lay"    data-m="6" src="assets/img/shade-matcap.jpg" alt="Matcap, lighting sampled from a view-space lookup.">
+        <img class="lay"    data-m="7" src="assets/img/shade-gooch.jpg" alt="Gooch shading, warm to cool tone mapping.">
+      </div>
+
+      <p class="caption" id="shadeCap"></p>
+    </div>
+  </section>
+
+  <section>
+    <h3>Eight stones</h3>
+    <p class="lede">
+      The centre body cycles through eight shapes and materials while the lasers keep
+      firing, so you can watch the same beams bend, split and bounce differently through
+      each one. Refractive indices are the real ones; colour comes from Beer-Lambert
+      absorption rather than a tint.
+    </p>
+
+    <div class="decomp">
+      <ul class="subjects shade" id="stones">
+        <li><button aria-pressed="true"  data-m="0">Water</button></li>
+        <li><button aria-pressed="false" data-m="1">Emerald</button></li>
+        <li><button aria-pressed="false" data-m="2">Ice</button></li>
+        <li><button aria-pressed="false" data-m="3">Diamond</button></li>
+        <li><button aria-pressed="false" data-m="4">Sapphire</button></li>
+        <li><button aria-pressed="false" data-m="5">Glass</button></li>
+        <li><button aria-pressed="false" data-m="6">Diamond II</button></li>
+        <li><button aria-pressed="false" data-m="7">Ruby</button></li>
+        <li><button aria-pressed="false" data-m="8">Transition</button></li>
+      </ul>
+
+      <div class="shot" id="stoneStage">
+        <img class="lay on" data-m="0" src="assets/img/gem-sphere_water.jpg" alt="Water sphere, refractive index 1.33.">
+        <img class="lay"    data-m="1" src="assets/img/gem-hex_emerald.jpg" alt="Emerald hexagonal prism, refractive index 1.55.">
+        <img class="lay"    data-m="2" src="assets/img/gem-cube_ice.jpg" alt="Ice cube, refractive index 1.50.">
+        <img class="lay"    data-m="3" src="assets/img/gem-tetra_diamond.jpg" alt="Diamond tetrahedron, refractive index 2.42.">
+        <img class="lay"    data-m="4" src="assets/img/gem-octa_sapphire.jpg" alt="Sapphire octahedron, refractive index 1.77.">
+        <img class="lay"    data-m="5" src="assets/img/gem-sphere_glass.jpg" alt="Glass sphere, refractive index 1.50.">
+        <img class="lay"    data-m="6" src="assets/img/gem-cube_diamond.jpg" alt="Diamond cube, refractive index 2.42.">
+        <img class="lay"    data-m="7" src="assets/img/gem-tetra_ruby.jpg" alt="Ruby tetrahedron, refractive index 1.77.">
+        <img class="lay"    data-m="8" src="assets/img/gem-tear.jpg" alt="The stone mid-change, shredded into blocks between the outgoing and incoming shape.">
+      </div>
+
+      <p class="caption" id="stoneCap"></p>
+    </div>
+
+    <dl class="stack">
+      <dt>Intersection</dt>
+      <dd>Analytic, not marched. Faceted solids are intersected as a set of planes</dd>
+      <dt>Transport</dt>
+      <dd>Reflection and refraction per hit, with total internal reflection at steep angles</dd>
+      <dt>Colour</dt>
+      <dd>Beer-Lambert absorption through the body, so thickness decides saturation</dd>
+      <dt>Beams</dt>
+      <dd>Traced on the CPU, then handed to the shader as segments</dd>
+      <dt>Cost</dt>
+      <dd>Cube and octahedron are the slow presets: more planes, more intersection work</dd>
+    </dl>
+  </section>
+
+    <article class="record">
+      <a class="still" href="https://www.youtube.com/watch?v=P5Y6Vqw8sb4" target="_blank" rel="noopener">
+        <img src="assets/img/casablanca.jpg" alt="Still from the Casablanca renderer: the city rendered in real time from OpenStreetMap data.">
+      </a>
+      <div class="body">
+      <h2><a href="https://www.youtube.com/watch?v=P5Y6Vqw8sb4" target="_blank" rel="noopener">Casablanca in real time, 134,000 buildings</a></h2>
+      <p class="meta">
+        <span>2026</span><span>1:25</span><span>C++ / OpenGL 4.5</span><span>220 km&sup2;</span>
+      </p>
+      <p class="note">
+        The whole city at interactive framerates, from OpenStreetMap footprints plus machine-learning
+        gap-fill. Built for real-estate visualization: every building can be queried, not just looked at.
+      </p>
+      <ul class="systems">
+        <li>Spatial tiling, frustum culling</li>
+        <li>Merged far-LOD</li>
+        <li>Cascaded shadows, real solar position</li>
+        <li>Reverse-Z depth</li>
+        <li>HDR bloom, ACES tonemap</li>
+        <li>Procedural lit windows at night</li>
+        <li>Ocean from a coastline-derived mask</li>
+        <li>Sea-view raycasting per building</li>
+        <li>Sun-hours against real shadows</li>
+        <li>Price heatmap from market data</li>
+        <li>Road graph from OSM ways</li>
+        <li>Pathfinding for driving tours</li>
+        <li>Arabic text shaping</li>
+        <li>Binary scene cache</li>
+      </ul>
+      </div>
+    </article>
+
+  <script>
+    (function () {
+      var picker = document.getElementById("stones");
+      var stage  = document.getElementById("stoneStage");
+      var cap    = document.getElementById("stoneCap");
+      if (!picker || !stage || !cap) return;
+
+      var NOTES = [
+        "Sphere, IOR 1.33. Barely bends anything. It is the reference the harder stones are read against.",
+        "Hexagonal prism, IOR 1.55. Flat faces send each beam off in one direction instead of spreading it.",
+        "Cube, IOR 1.50. Six planes, and the beam that enters one face often leaves through another entirely.",
+        "Tetrahedron, IOR 2.42. Diamond's index is high enough that most beams never escape on the first try.",
+        "Octahedron, IOR 1.77. Eight faces, the most intersection work of any preset here.",
+        "Sphere, IOR 1.50. The same glass as the cube, so the shape alone accounts for the difference.",
+        "Cube again at IOR 2.42. The pairing is deliberate: same solid, diamond's bending instead of ice's.",
+        "Tetrahedron, IOR 1.77. Absorption removes green and blue, so what leaves the stone is red.",
+        "Mid-change. The stone does not crossfade between presets. Each block picks the outgoing or the incoming shape, so the solid shreds while every ray still hits exactly one thing."
+      ];
+
+      var imgs = stage.querySelectorAll("img.lay");
+      var btns = picker.querySelectorAll("button");
+
+      function pick(n) {
+        for (var i = 0; i < imgs.length; i++) {
+          imgs[i].classList.toggle("on", Number(imgs[i].dataset.m) === n);
+        }
+        for (var b = 0; b < btns.length; b++) {
+          btns[b].setAttribute("aria-pressed", String(Number(btns[b].dataset.m) === n));
+        }
+        cap.textContent = NOTES[n];
+      }
+
+      picker.addEventListener("click", function (e) {
+        var btn = e.target.closest("button");
+        if (btn) pick(Number(btn.dataset.m));
+      });
+
+      pick(0);
+    })();
+  </script>
+
+  <section>
+    <h3>The engine</h3>
+    <p class="lede">
+      Atlas. Deferred, physically based, written from nothing. No engine, no framework,
+      no rendering library. All three pieces above run on it.
+    </p>
+    <ul class="systems">
+      <li>Deferred PBR, clustered shading</li>
+      <li>Cascaded, spot and point shadows</li>
+      <li>Image-based lighting</li>
+      <li>SSAO, SSR, SSGI</li>
+      <li>Volumetric light shafts</li>
+      <li>Depth of field, bloom, FXAA</li>
+      <li>Order-independent transparency</li>
+      <li>GPU compute particles</li>
+      <li>SDF raymarching</li>
+      <li>Marching cubes, voxel meshing</li>
+      <li>Procedural texture engine</li>
+      <li>Keyframe director, audio sync</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>Also</h3>
+    <p class="lede">
+      Graphics is not the only thing I build. Four that are not renderers.
+    </p>
+
+    <ul class="also">
+      <li>
+        <a href="https://github.com/sh0drun/flower" target="_blank" rel="noopener">Flower</a>
+        <span class="lang">Java</span>
+        <p>
+          A compiled programming language. It emits assembly and hands off to nasm and gcc,
+          so the output is a native binary rather than something walking its own tree.
+        </p>
+      </li>
+      <li>
+        <a href="https://github.com/sh0drun/deadlock-build-calculator" target="_blank" rel="noopener">Deadlock Build Calculator</a>
+        <span class="lang">TypeScript</span>
+        <p>
+          A build calculator and DPS optimiser for the game. Pick a hero, assemble a build,
+          and the stats recompute as you go. The one thing here I made for other people.
+        </p>
+      </li>
+      <li>
+        <a href="https://github.com/sh0drun/expars" target="_blank" rel="noopener">Expars</a>
+        <span class="lang">Java</span>
+        <p>
+          A mathematical expression parser and simulator. Shunting yard, infix to postfix,
+          with tests running in CI.
+        </p>
+      </li>
+      <li>
+        <a href="https://github.com/sh0drun/GoL" target="_blank" rel="noopener">Game of Life</a>
+        <span class="lang">Go</span>
+        <p>
+          Conway in a terminal, driving Win32 console calls directly to move and hide the
+          cursor. Four kilobytes.
+        </p>
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>Stack</h3>
+    <p class="lede">
+      Eight years of it. Highlighted is where the work on this page lives.
+    </p>
+
+    <div class="skills">
+      <div class="grp"><h4>graphics</h4>
+        <span class="hi">OpenGL 4.5</span><span class="hi">GLSL</span><span class="hi">WebGL</span>
+        <span class="hi">compute shaders</span><span class="hi">deferred PBR</span><span class="hi">raymarching</span>
+      </div>
+      <div class="grp"><h4>languages</h4>
+        <span class="hi">C++</span><span class="hi">GLSL</span><span>Java</span><span>Scala</span>
+        <span>TypeScript</span><span>JavaScript</span><span>Python</span><span>C#</span><span>C</span>
+      </div>
+      <div class="grp"><h4>backend</h4>
+        <span>Java EE</span><span>Spring Boot</span><span>Spring Data</span><span>Spring AOP</span>
+        <span>Spring Cloud</span><span>JPA</span><span>Apache Spark</span><span>Node.js</span><span>GraphQL</span>
+      </div>
+      <div class="grp"><h4>frontend</h4>
+        <span>Angular</span><span>RxJS</span><span>CSS</span>
+      </div>
+      <div class="grp"><h4>data</h4>
+        <span>Oracle</span><span>MySQL</span><span>SQL Server</span><span>MariaDB</span><span>Hadoop</span>
+      </div>
+      <div class="grp"><h4>build and ops</h4>
+        <span class="hi">CMake</span><span>Jenkins</span><span>GitLab CI</span><span>Azure DevOps</span>
+        <span>Git</span><span>SVN</span><span>Cloud Foundry</span>
+      </div>
+      <div class="grp"><h4>tools</h4>
+        <span class="hi">Dear ImGui</span><span class="hi">GNU Rocket</span><span class="hi">kkrunchy</span>
+        <span>Grafana</span><span>Kibana</span><span>Cucumber</span><span>Robot Framework</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Contact</h3>
+    <div class="contact">
+      <a href="mailto:me@sh0drun.dev">me@sh0drun.dev</a>
+      <a href="https://github.com/sh0drun" target="_blank" rel="noopener">github.com/sh0drun</a>
+      <a href="https://www.youtube.com/@sh0druncode" target="_blank" rel="noopener">youtube.com/@sh0druncode</a>
+      <a href="https://www.linkedin.com/in/razian/" target="_blank" rel="noopener">linkedin.com/in/razian</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function () {
+    var stage    = document.getElementById("stage");
+    var grab     = document.getElementById("grab");
+    var caption  = document.getElementById("caption");
+    var channels = document.getElementById("channels");
+    var subjects = document.getElementById("subjects");
+
+    // Which buffers actually carry information per scene. Metallic and roughness
+    // are constant in all three (the voxel and SDF paths write fixed material
+    // values), and Sanctuary writes no albedo at all, because it is raymarched, so only
+    // the normal and position targets are populated. Offering empty channels
+    // would just be flat colour, so they aren't listed.
+    var DATA = {
+      w: {
+        final: "w_final",
+        chans: [
+          { k: "w_albedo",   label: "Albedo",         cap: "Base colour per block face. No lighting, no shadow. The terrain palette before anything is done to it." },
+          { k: "w_normal",   label: "Normal",         cap: "Surface orientation packed into colour. Voxel faces are axis-aligned, so the whole world resolves to six flat hues." },
+          { k: "w_worldpos", label: "World position", cap: "World position per pixel, wrapped for legibility. Lets the lighting pass reconstruct where a pixel is without re-rasterising." },
+          { k: "w_depth",    label: "Depth",          cap: "View-space depth. Feeds ambient occlusion, fog and depth of field, and shows how far the chunk streamer is keeping geometry resident." }
+        ]
+      },
+      f: {
+        final: "f_final",
+        chans: [
+          { k: "f_albedo",   label: "Albedo",         cap: "Base colour of the fold-space surface, evaluated per raymarched hit rather than sampled from a texture." },
+          { k: "f_normal",   label: "Normal",         cap: "Normals recovered from the distance field's gradient. There is no mesh here to interpolate them from." },
+          { k: "f_worldpos", label: "World position", cap: "Where each ray terminated, written into the same buffer the rasterised scenes use." },
+          { k: "f_depth",    label: "Depth",          cap: "Raymarched depth. The wireframe box edges resolve at their own distances, which is what lets post effects treat this like any other geometry." }
+        ]
+      },
+      s: {
+        final: "s_final",
+        chans: [
+          { k: "s_normal",   label: "Normal",         cap: "The arcade is raymarched, not meshed, yet it still writes normals, so screen-space ambient occlusion and fog work on it exactly as they do on real geometry." },
+          { k: "s_worldpos", label: "World position", cap: "Ray termination points. Everything downstream of the G-buffer treats this scene identically to a rasterised one." }
+        ]
+      }
+    };
+
+    var layers = stage.querySelectorAll("img.lay");
+
+    function showLayers(finalKey, chanKey) {
+      for (var i = 0; i < layers.length; i++) {
+        var k = layers[i].dataset.k;
+        layers[i].classList.toggle("on", k === finalKey || k === chanKey);
+      }
+    }
+
+    function setChannel(subject, idx) {
+      var d = DATA[subject];
+      showLayers(d.final, d.chans[idx].k);
+      caption.textContent = d.chans[idx].cap;
+      var btns = channels.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].setAttribute("aria-pressed", String(i === idx));
+      }
+    }
+
+    function setSubject(subject) {
+      stage.setAttribute("data-subject", subject);
+      stage.removeAttribute("data-active");   // drop any latched callout
+      latched = null;
+
+      var sbtns = subjects.querySelectorAll("button");
+      for (var i = 0; i < sbtns.length; i++) {
+        sbtns[i].setAttribute("aria-pressed", String(sbtns[i].dataset.s === subject));
+      }
+
+      // Rebuild the channel chips for this scene.
+      channels.innerHTML = "";
+      var d = DATA[subject];
+      for (var c = 0; c < d.chans.length; c++) {
+        (function (index) {
+          var li = document.createElement("li");
+          var b  = document.createElement("button");
+          b.textContent = d.chans[index].label;
+          b.setAttribute("aria-pressed", String(index === 0));
+          b.addEventListener("click", function () { setChannel(subject, index); });
+          li.appendChild(b);
+          channels.appendChild(li);
+        })(c);
+      }
+      setChannel(subject, 0);
+    }
+
+    subjects.addEventListener("click", function (e) {
+      var btn = e.target.closest("button");
+      if (btn) setSubject(btn.dataset.s);
+    });
+
+    // ---- wipe ----
+    function setPos(v) { stage.style.setProperty("--pos", v + "%"); }
+    grab.addEventListener("input", function () { setPos(grab.value); });
+    setPos(grab.value);
+
+    // ---- callouts (voxel frame only) ----
+    // One is active at a time, held on the stage as a data attribute; CSS lights
+    // the matching leader line and panel. Hover reveals on desktop, click latches
+    // so it works on touch.
+    var annos   = stage.querySelectorAll(".anno");
+    var latched = null;
+
+    function show(id) { stage.setAttribute("data-active", id); }
+    function clear()  { if (!latched) stage.removeAttribute("data-active"); }
+
+    for (var k = 0; k < annos.length; k++) {
+      (function (el) {
+        var id = el.dataset.id;
+        el.addEventListener("mouseenter", function () { if (!latched) show(id); });
+        el.addEventListener("mouseleave", clear);
+        el.addEventListener("focus",      function () { show(id); });
+        el.addEventListener("blur",       clear);
+        el.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (latched === id) { latched = null; stage.removeAttribute("data-active"); }
+          else                { latched = id;   show(id); }
+        });
+      })(annos[k]);
+    }
+
+    // Dragging the wipe dismisses a latched panel so it can't sit in the way.
+    grab.addEventListener("pointerdown", function () {
+      latched = null;
+      stage.removeAttribute("data-active");
+    });
+
+    setSubject("w");
+  })();
+</script>
+
+<script>
+  (function () {
+    var picker = document.getElementById("shaders");
+    var stage  = document.getElementById("shadeStage");
+    var cap    = document.getElementById("shadeCap");
+    if (!picker || !stage || !cap) return;
+
+    var NOTES = [
+      "Physically based. Microfacet specular with energy conservation. The reference the other seven are departures from.",
+      "Diffuse quantised into bands, so the terminator lands as a hard edge instead of a gradient.",
+      "Edges recovered from the distance field itself: bodies go dark and only the silhouette carries light.",
+      "Thin-film interference. The hue shifts with view angle rather than with the light.",
+      "Tone carried by stroke density instead of brightness. Darker regions get more strokes.",
+      "Weighted by grazing angle, so the rim lights up and the facing surface stays dim.",
+      "Lighting sampled from a view-space lookup, so a whole environment costs one fetch.",
+      "Warm-to-cool tone shading. Built for technical illustration, where shape has to read without shadows hiding detail."
+    ];
+
+    var imgs = stage.querySelectorAll("img.lay");
+    var btns = picker.querySelectorAll("button");
+
+    function pick(n) {
+      for (var i = 0; i < imgs.length; i++) {
+        imgs[i].classList.toggle("on", Number(imgs[i].dataset.m) === n);
+      }
+      for (var b = 0; b < btns.length; b++) {
+        btns[b].setAttribute("aria-pressed", String(Number(btns[b].dataset.m) === n));
+      }
+      cap.textContent = NOTES[n];
+    }
+
+    picker.addEventListener("click", function (e) {
+      var btn = e.target.closest("button");
+      if (btn) pick(Number(btn.dataset.m));
+    });
+
+    pick(0);
+  })();
+</script>
+
+
+<script>
+  (function () {
+    var canvas = document.getElementById("glhero");
+    if (!canvas) return;
+
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;                       // leave the still image in place
+
+    var gl = canvas.getContext("webgl2", { antialias: false, alpha: false, powerPreference: "low-power" });
+    if (!gl) return;                          // no WebGL2, the still image stays
+
+    var VERT = [
+      "#version 300 es",
+      "void main(){",
+      // Fullscreen triangle from gl_VertexID: no vertex buffer, no attributes.
+      "  vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);",
+      "  gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0);",
+      "}"
+    ].join("\n");
+
+    // The hex kaleidoscope tunnel from atlas64k/shaders/scene_tunnel.glsl,
+    // ported to GLSL ES 3.00. Same maths, with the two prelude helpers it
+    // depends on inlined and the audio term replaced by a slow synthetic pulse
+    // since there is no soundtrack here.
+    var FRAG = [
+      "#version 300 es",
+      "precision highp float;",
+      "uniform vec2  iResolution;",
+      "uniform float iTime;",
+      "uniform float iBass;",
+      "out vec4 fragColor;",
+      "const float TAU = 6.28318530718;",
+      "const float TN_SEG = 12.0;",
+      "mat2 rot(float a){ float s=sin(a), c=cos(a); return mat2(c,-s,s,c); }",
+      "float tn_hex(vec2 p){ p = abs(p); return max(dot(p, vec2(0.8660254,0.5)), p.y); }",
+      "vec3 tonemap(vec3 x){ return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14), 0.0, 1.0); }",
+      "vec3 encode_srgb(vec3 c){ return mix(c*12.92, 1.055*pow(c, vec3(1.0/2.4))-0.055, step(vec3(0.0031308), c)); }",
+      "void main(){",
+      "  vec2 uv = gl_FragCoord.xy / iResolution;",
+      "  float aspect = iResolution.x / iResolution.y;",
+      "  float time = iTime;",
+      "  vec2 p = uv * 2.0 - 1.0;",
+      "  p.x *= aspect;",
+      "  p -= vec2(sin(time*0.50), sin(time*0.41+2.0)) * 0.32;",
+      "  p = rot(time*0.04) * p;",
+      "  float ang = atan(p.y, p.x);",
+      "  float hr = max(tn_hex(p), 1e-3);",
+      "  float depth = 1.30/hr + time*0.80;",
+      "  float s = (ang + depth*0.30)/TAU + 0.5;",
+      "  float shade = 0.02 + 0.05*smoothstep(0.0, 0.6, hr);",
+      "  vec3 col = vec3(0.012,0.018,0.030) * shade * 20.0;",
+      "  vec3 neon = mix(vec3(0.10,0.75,1.00), vec3(0.95,0.20,0.72),",
+      "                  0.5 + 0.5*sin(depth*0.35 + time*0.12));",
+      "  neon *= 1.0 + iBass*1.3;",
+      "  float ringBase  = 0.5 + 0.5*cos(depth*TAU);",
+      "  float spokeBase = 0.5 + 0.5*cos(s*TN_SEG*TAU);",
+      "  col += neon * (pow(ringBase,55.0) + pow(spokeBase,55.0)) * 2.2;",
+      "  col += neon * 0.045 * pow(spokeBase,3.0);",
+      "  col += neon * (pow(ringBase,6.0) + pow(spokeBase,6.0)) * 0.22;",
+      "  float streaks = pow(max(0.0, sin(ang*30.0)), 120.0);",
+      "  streaks *= smoothstep(0.85,0.06,hr) * (0.5 + 0.5*sin(time*6.0 + floor(ang*9.55)));",
+      "  col += neon * streaks * 1.1;",
+      "  col += neon * smoothstep(0.42,0.0,hr) * 1.6;",
+      "  col += neon * smoothstep(1.00,0.0,hr) * 0.30;",
+      "  col += vec3(0.85,0.92,1.00) * smoothstep(0.10,0.0,hr) * (2.2 + iBass*3.0);",
+      "  float vig = smoothstep(1.7, 0.45, length(uv*2.0-1.0));",
+      "  col *= mix(0.10, 1.0, vig);",
+      // The intro tone maps once in its post chain; there is none here, so it
+      // happens inline. Without it the neon clips to flat white.
+      "  fragColor = vec4(encode_srgb(tonemap(col)), 1.0);",
+      "}"
+    ].join("\n");
+
+    function compile(type, src) {
+      var s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { gl.deleteShader(s); return null; }
+      return s;
+    }
+
+    var vs = compile(gl.VERTEX_SHADER, VERT);
+    var fs = compile(gl.FRAGMENT_SHADER, FRAG);
+    if (!vs || !fs) return;
+
+    var prog = gl.createProgram();
+    gl.attachShader(prog, vs);
+    gl.attachShader(prog, fs);
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+    gl.useProgram(prog);
+
+    var uRes  = gl.getUniformLocation(prog, "iResolution");
+    var uTime = gl.getUniformLocation(prog, "iTime");
+    var uBass = gl.getUniformLocation(prog, "iBass");
+    var vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+
+    // Cap the pixel ratio. This is a per pixel shader and a 3x retina hero costs
+    // nine times a 1x one for a background nobody inspects at that scale.
+    var DPR_CAP = 1.5;
+    function resize() {
+      var dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+      var w = Math.max(1, Math.round(canvas.clientWidth  * dpr));
+      var h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w; canvas.height = h;
+        gl.viewport(0, 0, w, h);
+      }
+      return [w, h];
+    }
+
+    canvas.classList.add("on");
+
+    var running = true, raf = 0, t0 = 0;
+
+    function frame(now) {
+      if (!running) return;
+      if (!t0) t0 = now;
+      var t = (now - t0) * 0.001;
+      var size = resize();
+      gl.uniform2f(uRes, size[0], size[1]);
+      gl.uniform1f(uTime, t);
+      // Stands in for the low band energy the intro drives this with.
+      gl.uniform1f(uBass, 0.35 + 0.35 * Math.sin(t * 1.9));
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      raf = requestAnimationFrame(frame);
+    }
+
+    function start() { if (!running) { running = true; t0 = 0; raf = requestAnimationFrame(frame); } }
+    function stop()  { running = false; if (raf) cancelAnimationFrame(raf); raf = 0; }
+
+    raf = requestAnimationFrame(frame);
+
+    // Stop rendering when the hero is off screen or the tab is hidden. The page
+    // is six panels tall and this would otherwise keep a GPU busy the whole way
+    // down for something nobody is looking at.
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) {
+        for (var i = 0; i < es.length; i++) { es[i].isIntersecting ? start() : stop(); }
+      }, { threshold: 0.01 }).observe(canvas);
+    }
+    document.addEventListener("visibilitychange", function () {
+      document.hidden ? stop() : start();
+    });
+
+    gl.canvas.addEventListener("webglcontextlost", function (e) { e.preventDefault(); stop(); }, false);
+  })();
+</script>
+
+
+<script>
+  (function () {
+    var chart = document.querySelector(".chart");
+    if (!chart) return;
+
+    var lines = chart.querySelectorAll("polyline");
+    if (!lines.length) return;
+
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) {
+      chart.classList.add("drawn");
+      return;
+    }
+
+    // Dash the whole path and push it out of view, so the transition back to
+    // zero reads as the line being drawn. Each polyline has its own length, so
+    // this has to be measured rather than guessed at.
+    function prime() {
+      for (var i = 0; i < lines.length; i++) {
+        // Overshoot the measured length by a few percent. getTotalLength on a
+        // polyline can come back marginally short, and a dash shorter than the
+        // path leaves the line permanently stopping before its last point.
+        var len = lines[i].getTotalLength() * 1.04;
+        // Transition off while resetting, or leaving the panel would play the
+        // line backwards on its way out.
+        lines[i].style.transition       = "none";
+        lines[i].style.strokeDasharray  = len + " " + len;
+        lines[i].style.strokeDashoffset = len;
+      }
+    }
+
+    // Once a line has finished drawing, drop the dash entirely. Whatever the
+    // measurement was, the resting state is then a plain solid stroke.
+    function settle(e) {
+      if (e.propertyName === "stroke-dashoffset") {
+        e.target.style.strokeDasharray  = "none";
+        e.target.style.strokeDashoffset = "0";
+      }
+    }
+    for (var n = 0; n < lines.length; n++) {
+      lines[n].addEventListener("transitionend", settle);
+    }
+
+    function draw() {
+      // Read back a layout value first: without it the browser may collapse the
+      // priming and the draw into one style pass and the line simply appears.
+      chart.getBoundingClientRect();
+      for (var i = 0; i < lines.length; i++) {
+        lines[i].style.transition = "";        // hand timing back to the CSS
+        lines[i].style.strokeDashoffset = "0";
+      }
+      chart.classList.add("drawn");
+    }
+
+    prime();
+
+    // Replays on every return rather than firing once. The page snaps section
+    // by section, so scrolling back up is a normal thing to do here.
+    var io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          draw();
+        } else {
+          chart.classList.remove("drawn");
+          prime();
+        }
+      }
+    }, { threshold: 0.35 });
+
+    io.observe(chart);
+  })();
+</script>
+
+<script>
+  (function () {
+    var tl = document.querySelector(".roles");
+    if (!tl) return;
+
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) { tl.classList.add("drawn"); return; }
+
+    // Replays on return, matching the size chart. The bars are pure CSS scaleX
+    // with staggered delays, so the class is the only thing to toggle.
+    new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        tl.classList.toggle("drawn", entries[i].isIntersecting);
+      }
+    }, { threshold: 0.3 }).observe(tl);
+  })();
+</script>
+
+</body>
+</html>

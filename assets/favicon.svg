@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The oversized triangle every shader on this site draws from gl_VertexID,
+       clipped by the viewport exactly as it is on screen. -->
+  <rect width="32" height="32" fill="#080A0E"/>
+  <path d="M-1 -1 L-1 47 L47 -1 Z" fill="#D8DEE6"/>
+</svg>
