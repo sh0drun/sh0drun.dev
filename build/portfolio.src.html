@@ -223,7 +223,13 @@
     font-size: 1rem; text-transform: uppercase; letter-spacing: -0.02em;
     color: var(--text); margin-right: 0.5rem;
   }
-  .roles .now .what b { color: var(--accent); }
+  /* What the job actually was. Auto-placement puts it on a new row under the
+     label, spanning the bar, so it reads as a caption rather than a column. */
+  .roles .did {
+    grid-column: 2 / -1; font-family: var(--mono); font-size: 0.75rem;
+    line-height: 1.55; color: var(--dim); max-width: 84ch;
+    padding-bottom: 0.35rem;
+  }  .roles .now .what b { color: var(--accent); }
   .roles .off .what b { color: var(--dim); }
 
   /* The bar sits on a shared 2018 to 2026 axis, so a row position is a date. */
@@ -259,6 +265,7 @@
   @media (max-width: 60rem) {
     .roles li { grid-template-columns: 6rem minmax(0, 1fr); }
     .roles .track { grid-column: 1 / -1; height: 1rem; }
+    .roles .did { grid-column: 1 / -1; }
   }
   @media (prefers-reduced-motion: reduce) { .roles .bar { transition: none; } }
 
@@ -655,11 +662,13 @@
       <li>
         <span class="when">2018 to 2021</span>
         <span class="what"><b>Sofrecom</b> Java JEE and Angular developer, Morocco</span>
+        <span class="did">SHINE2, the e commerce platform behind Orange. Batch jobs, web services and microservices on Spring, with the Angular front end alongside.</span>
         <span class="track"><span class="bar" style="--a:0%;--w:40.6%"></span></span>
       </li>
       <li>
         <span class="when">2021 to 2022</span>
         <span class="what"><b>Agoda</b> Software engineer, Bangkok</span>
+        <span class="did">The finance platform, processing booking data in batch. Scala and C# on Spark and Hadoop, plus the data tests that proved the ETL output was correct.</span>
         <span class="track"><span class="bar" style="--a:41.6%;--w:9.9%"></span></span>
       </li>
       <li class="off">
@@ -670,16 +679,19 @@
       <li>
         <span class="when">2023</span>
         <span class="what"><b>ExxonMobil</b> System analyst, Bangkok</span>
+        <span class="did">OpenLink Endur, the commodity trading and risk system. Production support across the LNG trading lifecycle.</span>
         <span class="track"><span class="bar" style="--a:59.4%;--w:3.0%"></span></span>
       </li>
       <li>
         <span class="when">2023</span>
         <span class="what"><b>Dbot Software</b> Software engineer, Bangkok</span>
+        <span class="did">Alpega TMS, a transport and supply chain system. Moved the front end off Java GWT onto Angular.</span>
         <span class="track"><span class="bar" style="--a:62.4%;--w:5.9%"></span></span>
       </li>
       <li>
         <span class="when">2024 to 2025</span>
         <span class="what"><b>EssilorLuxottica</b> Java software engineer, Bangkok</span>
+        <span class="did">Two manufacturing systems for optical lens production, Organic and Combo. Production routing, scheduling and capacity, on Java and Oracle.</span>
         <span class="track"><span class="bar" style="--a:69.3%;--w:21.8%"></span></span>
       </li>
       <li class="now">
