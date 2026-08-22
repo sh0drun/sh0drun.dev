@@ -242,6 +242,57 @@
     color: var(--text); margin-right: 0.5rem;
   }
   .roles .now .what b { color: var(--accent); }
+  /* ---- experience ----
+     The only section taller than a viewport. It anchors to the top and does not
+     force a snap stop, so a scroll reads through it rather than being held. */
+  section.wide { justify-content: flex-start; scroll-snap-stop: normal; }
+
+  .xp { list-style: none; margin: 0; padding: 0; max-width: 78rem; }
+  .xp > li { padding: 1.6rem 0; border-top: 1px solid var(--line); }
+  .xp > li:last-child { border-bottom: 1px solid var(--line); }
+
+  .xh {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline; gap: 0 1.5rem; margin-bottom: 0.75rem;
+  }
+  .co {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(1rem, 2vw, 1.3rem); text-transform: uppercase;
+    letter-spacing: -0.02em; color: var(--text); margin-right: 0.75rem;
+  }
+  .xp > li:first-child .co { color: var(--accent); }
+  .ro { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); }
+  .dt {
+    font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--dim); text-align: right;
+    grid-row: span 2; font-variant-numeric: tabular-nums;
+  }
+  .dt span { color: var(--line); }
+
+  .xp p {
+    margin: 0 0 0.75rem; font-family: var(--mono); font-size: 0.8125rem;
+    line-height: 1.65; color: var(--muted); max-width: 76ch;
+  }
+  .xp ul { margin: 0 0 1rem; padding: 0; list-style: none; max-width: 82ch; }
+  .xp ul li {
+    font-family: var(--mono); font-size: 0.78125rem; line-height: 1.6;
+    color: var(--dim); padding-left: 1.1rem; position: relative;
+  }
+  .xp ul li::before { content: ">"; position: absolute; left: 0; color: var(--line); }
+
+  .tech { display: flex; flex-wrap: wrap; gap: 0.35rem 0.4rem; }
+  .tech span {
+    font-family: var(--mono); font-size: 0.6875rem; color: var(--muted);
+    border: 1px solid var(--line); padding: 0.1rem 0.45rem;
+  }
+
+  @media (max-width: 60rem) {
+    .xh { grid-template-columns: minmax(0, 1fr); }
+    .dt { grid-row: auto; text-align: left; margin-top: 0.35rem; }
+    .dt br { display: none; }
+    .dt span::before { content: " / "; }
+  }
+
   .roles .off .what b { color: var(--dim); }
 
   /* The bar sits on a shared 2018 to 2026 axis, so a row position is a date. */
@@ -727,6 +778,115 @@
       kilobytes for thirty years, and once you have seen that, reaching for an engine to
       draw three primitives on a checkerboard feels like the wrong instinct.
     </p>
+  </section>
+
+  <section class="wide">
+    <h3>Experience</h3>
+    <p class="lede">
+      Eight years of enterprise backend, in the order the timeline above shows it.
+    </p>
+
+    <ol class="xp">
+      <li>
+        <div class="xh">
+          <span class="co">SQLI</span>
+          <span class="ro">Software engineer</span>
+          <span class="dt">2026 to present<br><span>Casablanca</span></span>
+        </div>
+      </li>
+
+      <li>
+        <div class="xh">
+          <span class="co">EssilorLuxottica</span>
+          <span class="ro">Java software engineer</span>
+          <span class="dt">Jan 2024 to 2025<br><span>Bangkok</span></span>
+        </div>
+        <p>
+          Two manufacturing systems for optical lens production. Organic handles monitoring,
+          production strategy, planning and scheduling; Combo covers product management,
+          constraints and capacity.
+        </p>
+        <ul>
+          <li>Built backend services for production routing, scheduling and capacity management.</li>
+          <li>Optimised Oracle SQL against the queries that were holding the system back.</li>
+          <li>Planned and ran the SVN to Git migration across several projects, and trained the team on it.</li>
+          <li>Introduced code review, and the Java style standards that came with it.</li>
+        </ul>
+        <div class="tech"><span>Java</span><span>Oracle</span><span>Azure DevOps</span><span>Git</span></div>
+      </li>
+
+      <li>
+        <div class="xh">
+          <span class="co">Dbot Software</span>
+          <span class="ro">Software engineer</span>
+          <span class="dt">Jun 2023 to Dec 2023<br><span>Bangkok</span></span>
+        </div>
+        <p>
+          Alpega TMS, a transport management ecosystem for controlling and supervising
+          shipments across a supply chain.
+        </p>
+        <ul>
+          <li>Migrated Java GWT components to Angular, working Kanban inside a Scrum team.</li>
+          <li>Refactored components on both sides of that boundary.</li>
+        </ul>
+        <div class="tech"><span>Java</span><span>Angular</span><span>EJB</span><span>WebLogic</span><span>Jenkins</span><span>Bitbucket</span></div>
+      </li>
+
+      <li>
+        <div class="xh">
+          <span class="co">ExxonMobil</span>
+          <span class="ro">System analyst, LNG</span>
+          <span class="dt">Mar 2023 to Jun 2023<br><span>Bangkok</span></span>
+        </div>
+        <p>
+          OpenLink Endur, the platform managing the commodity trading process and its risk
+          side.
+        </p>
+        <ul>
+          <li>Supported daily production and acceptance issues across the Endur instances.</li>
+          <li>Refreshed development SQL Server instances from acceptance and production.</li>
+          <li>Traced and fixed plugin bugs interrupting the trading lifecycle.</li>
+        </ul>
+        <div class="tech"><span>Java</span><span>OpenLink Endur</span><span>SQL Server</span><span>Azure</span></div>
+      </li>
+
+      <li>
+        <div class="xh">
+          <span class="co">Agoda</span>
+          <span class="ro">Software engineer</span>
+          <span class="dt">Sep 2021 to Jul 2022<br><span>Bangkok</span></span>
+        </div>
+        <p>
+          The finance platform, processing booking data in batch for one of the largest
+          travel companies in Asia.
+        </p>
+        <ul>
+          <li>Maintained the Scala and C# applications the financial ecosystem runs on.</li>
+          <li>Wrote Quilliup data tests proving the ETL output was intact and correct.</li>
+          <li>Built Grafana dashboards for monitoring and analytics.</li>
+          <li>On call for financial ecosystem incidents.</li>
+        </ul>
+        <div class="tech"><span>Scala</span><span>C#</span><span>Apache Spark</span><span>Hadoop</span><span>Grafana</span><span>Kibana</span><span>Quilliup</span></div>
+      </li>
+
+      <li>
+        <div class="xh">
+          <span class="co">Sofrecom</span>
+          <span class="ro">Java JEE and Angular developer</span>
+          <span class="dt">Sep 2018 to Aug 2021<br><span>Morocco</span></span>
+        </div>
+        <p>
+          SHINE2, the e commerce management platform behind Orange, on a microservices
+          architecture. Three years, the longest run here.
+        </p>
+        <ul>
+          <li>Built application modules across batch, web services and microservices.</li>
+          <li>Developed the front end alongside, and carried the refactoring that went with it.</li>
+          <li>Held corrective and evolutionary maintenance on the platform in a Scrum team.</li>
+        </ul>
+        <div class="tech"><span>Java EE</span><span>Spring</span><span>Spring Cloud</span><span>Data JPA</span><span>Angular</span><span>REST</span><span>MariaDB</span><span>MySQL</span><span>Cucumber</span><span>Cloud Foundry</span></div>
+      </li>
+    </ol>
   </section>
 
   <section>
