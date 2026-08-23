@@ -32,8 +32,8 @@ foreach ($e in $map.PSObject.Properties) {
 # The template starts at <title>. A hosted page needs its own document around
 # it. Without the viewport meta, phones render at desktop width and zoom out.
 $domain = 'https://sh0drun.dev'
-$desc   = 'Anass Razik, graphics programmer in Casablanca. Real-time renderers built from scratch in C++ and OpenGL 4.5: a deferred PBR engine, a 19 KB intro, a whole city.'
-$ttl    = 'Anass Razik (sh0drun), real-time graphics programmer'
+$desc   = 'Software engineer in Casablanca. Eight years of backend systems, and real-time renderers built from scratch in C++ and OpenGL 4.5 alongside them.'
+$ttl    = 'Anass Razik (sh0drun), software engineer'
 
 $split = $hosted.IndexOf('</style>')
 if ($split -lt 0) { throw 'no </style>, cannot split head from body' }
