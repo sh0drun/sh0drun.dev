@@ -35,5 +35,6 @@
     "SH_0":  "assets/img/shade-pbr.jpg",
     "SH_6":  "assets/img/shade-matcap.jpg",
     "FONT_BITMAP":  "assets/fonts/Silkscreen.woff2",
-    "GEM_5":  "assets/img/gem-sphere_glass.jpg"
+    "GEM_5":  "assets/img/gem-sphere_glass.jpg",
+    "FONT_CHAKRA":  "assets/fonts/ChakraPetch-700.woff2"
 }

@@ -35,6 +35,11 @@
     src: url("assets/fonts/Silkscreen.woff2") format("woff2");
     font-weight: 400; font-style: normal; font-display: block;
   }
+  @font-face {
+    font-family: "Display";
+    src: url("assets/fonts/ChakraPetch-700.woff2") format("woff2");
+    font-weight: 700; font-style: normal; font-display: block;
+  }
 
   /* Dark only. A light ground fights every image on the page. No hue in the
      interface either, the renders carry enough. Neutrals take a cool cast. */
@@ -51,6 +56,7 @@
     --display: "Plex", ui-monospace, monospace;
     --mono: "Plex", ui-monospace, "Cascadia Mono", Consolas, monospace;
     --label: "Bitmap", "Plex", ui-monospace, monospace;
+  --name:  "Display", "Plex", ui-monospace, monospace;
     --pad: clamp(1.25rem, 5vw, 5rem);
   }
 
@@ -112,9 +118,9 @@
   /* Monospace is wide by design, so display sizes need the tracking pulled in
      hard or the word falls apart across the screen. */
   h1 {
-    font-family: var(--label); font-weight: 400;
-    font-size: clamp(2rem, 8.5vw, 6rem); line-height: 1.05;
-    letter-spacing: 0.01em; text-transform: uppercase;
+    font-family: var(--name); font-weight: 700;
+    font-size: clamp(2.4rem, 9vw, 6.5rem); line-height: 0.95;
+    letter-spacing: 0.005em; text-transform: uppercase;
     margin: 0 0 1.5rem; color: var(--accent);
   }
 
