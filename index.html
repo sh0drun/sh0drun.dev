@@ -112,20 +112,12 @@
   /* Monospace is wide by design, so display sizes need the tracking pulled in
      hard or the word falls apart across the screen. */
   h1 {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: clamp(2.75rem, 12vw, 8.5rem);
-    line-height: 0.88;
-    letter-spacing: -0.055em;
-    text-transform: uppercase;
-    margin: 0 0 1.25rem;
+    font-family: var(--label); font-weight: 400;
+    font-size: clamp(2rem, 8.5vw, 6rem); line-height: 1.05;
+    letter-spacing: 0.01em; text-transform: uppercase;
+    margin: 0 0 1.5rem; color: var(--accent);
   }
 
-  .role {
-    font-family: var(--label); font-size: 0.6875rem;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); margin: 0 0 1.1rem;
-  }
 
   .standfirst { margin: 0; color: var(--text); max-width: 110ch; }
   .standfirst strong { color: var(--accent); font-weight: 400; }
@@ -770,12 +762,11 @@
     <img class="bg" src="assets/img/hero.jpg" alt="Raytraced spheres and coloured laser beams over an infinite checkerboard.">
     <canvas class="gl" id="glhero" aria-hidden="true"></canvas>
     <div class="lead">
-      <p class="role">Real-time rendering</p>
-      <h1>sh0drun</h1>
+      <h1>Anass Razik</h1>
       <p class="standfirst">
-        I'm Anass Razik. I build a lot of different things, a compiled language, parsers,
-        tools, but computer graphics is the one I keep returning to. I write renderers from
-        scratch in C++, in Java, in TypeScript, whatever the target is, with
+        I build a lot of different things, a compiled language, parsers, tools, but
+        computer graphics is the one I keep returning to. I write renderers from scratch
+        in C++, in Java, in TypeScript, whatever the target is, with
         <strong>no engine underneath</strong>.
       </p>
     </div>
