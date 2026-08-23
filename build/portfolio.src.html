@@ -595,8 +595,8 @@
   /* Footer. One page, so there is no sitemap to link. Two columns: how to
      reach me, and the sites this one learned from. */
   .foot {
-    display: grid; grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2rem 4rem; align-items: start;
+    display: flex; flex-wrap: wrap; align-items: flex-start;
+    gap: 2.5rem 6rem;
   }
   .credits h4 {
     margin: 0 0 0.75rem; font-family: var(--mono); font-weight: 400;
@@ -624,7 +624,7 @@
   }
   .colophon .cr { margin-left: auto; }
   @media (max-width: 52rem) {
-    .foot { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; }
+    .foot { gap: 2rem; }
     .colophon .cr { margin-left: 0; }
   }
 
