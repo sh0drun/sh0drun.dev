@@ -699,6 +699,33 @@
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Anass Razik",
+    "alternateName": "sh0drun",
+    "url": "https://sh0drun.dev/",
+    "email": "mailto:me@sh0drun.dev",
+    "jobTitle": "Software engineer",
+    "description": "Graphics programmer writing real-time renderers from scratch in C++ and OpenGL 4.5, alongside eight years of enterprise backend engineering.",
+    "address": { "@type": "PostalAddress", "addressLocality": "Casablanca", "addressCountry": "MA" },
+    "worksFor": { "@type": "Organization", "name": "SQLI" },
+    "alumniOf": { "@type": "CollegeOrUniversity", "name": "Polydisciplinary Faculty of Beni Mellal" },
+    "knowsAbout": [
+      "Real-time rendering", "Computer graphics", "OpenGL", "GLSL", "C++",
+      "Deferred shading", "Physically based rendering", "Raymarching",
+      "GPU compute", "Demoscene", "Java", "Spring"
+    ],
+    "sameAs": [
+      "https://github.com/sh0drun",
+      "https://www.linkedin.com/in/razian/",
+      "https://www.youtube.com/@sh0druncode",
+      "https://stackoverflow.com/users/6087346/a-razik"
+    ]
+  }
+  </script>
+
 <svg class="sprite" aria-hidden="true" focusable="false">
     <symbol id="i-angular" viewBox="0 0 24 24" fill="#0F0F11"><path d="M16.712 17.711H7.288l-1.204 2.916L12 24l5.916-3.373-1.204-2.916ZM14.692 0l7.832 16.855.814-12.856L14.692 0ZM9.308 0 .662 3.999l.814 12.856L9.308 0Zm-.405 13.93h6.198L12 6.396 8.903 13.93Z"/></symbol>
     <symbol id="i-azuredevops" viewBox="0 0 128 128"><defs> <linearGradient id="a" gradientUnits="userSpaceOnUse" x1="9" y1="16.97" x2="9" y2="1.03" gradientTransform="scale(7.11111)"> <stop offset="0" stop-color="#0078d4"/> <stop offset=".16" stop-color="#1380da"/> <stop offset=".53" stop-color="#3c91e5"/> <stop offset=".82" stop-color="#559cec"/> <stop offset="1" stop-color="#5ea0ef"/> </linearGradient> </defs> <path fill="url(#a)" d="M120.89 28.445v69.262l-28.445 23.324-44.09-16.07v15.93L23.395 88.25l72.746 5.688V31.574ZM96.64 31.93 55.82 7.11v16.285L18.348 34.418 7.109 48.852v32.785l16.075 7.11V46.718Zm0 0"/></symbol>
@@ -744,7 +771,7 @@
 <div class="wrap">
 
   <header>
-    <img class="bg" src="data:image/jpeg;base64,{{HERO}}" alt="Raytraced spheres and coloured laser beams over an infinite checkerboard.">
+    <img class="bg" src="data:image/jpeg;base64,{{HERO}}" alt="Raytraced spheres and coloured laser beams over an infinite checkerboard." width="1600" height="900" fetchpriority="high" decoding="async">
     <canvas class="gl" id="glhero" aria-hidden="true"></canvas>
     <div class="lead">
       <h1>Anass Razik</h1>
@@ -959,20 +986,20 @@
       </ul>
 
       <div class="stage" id="stage">
-        <img class="lay chan on" data-k="w_albedo"   src="data:image/jpeg;base64,{{W_ALBEDO}}"   alt="Voxel world albedo buffer.">
-        <img class="lay chan"    data-k="w_normal"   src="data:image/jpeg;base64,{{W_NORMAL}}"   alt="Voxel world normal buffer.">
-        <img class="lay chan"    data-k="w_worldpos" src="data:image/jpeg;base64,{{W_WORLDPOS}}" alt="Voxel world position buffer.">
-        <img class="lay chan"    data-k="w_depth"    src="data:image/jpeg;base64,{{W_DEPTH}}"    alt="Voxel world depth buffer.">
-        <img class="lay chan"    data-k="f_albedo"   src="data:image/jpeg;base64,{{F_ALBEDO}}"   alt="Fractal albedo buffer.">
-        <img class="lay chan"    data-k="f_normal"   src="data:image/jpeg;base64,{{F_NORMAL}}"   alt="Fractal normal buffer.">
-        <img class="lay chan"    data-k="f_worldpos" src="data:image/jpeg;base64,{{F_WORLDPOS}}" alt="Fractal world position buffer.">
-        <img class="lay chan"    data-k="f_depth"    src="data:image/jpeg;base64,{{F_DEPTH}}"    alt="Fractal depth buffer.">
-        <img class="lay chan"    data-k="s_normal"   src="data:image/jpeg;base64,{{S_NORMAL}}"   alt="Sanctuary normal buffer.">
-        <img class="lay chan"    data-k="s_worldpos" src="data:image/jpeg;base64,{{S_WORLDPOS}}" alt="Sanctuary world position buffer.">
+        <img class="lay chan on" data-k="w_albedo"   src="data:image/jpeg;base64,{{W_ALBEDO}}"   alt="Voxel world albedo buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="w_normal"   src="data:image/jpeg;base64,{{W_NORMAL}}"   alt="Voxel world normal buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="w_worldpos" src="data:image/jpeg;base64,{{W_WORLDPOS}}" alt="Voxel world position buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="w_depth"    src="data:image/jpeg;base64,{{W_DEPTH}}"    alt="Voxel world depth buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="f_albedo"   src="data:image/jpeg;base64,{{F_ALBEDO}}"   alt="Fractal albedo buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="f_normal"   src="data:image/jpeg;base64,{{F_NORMAL}}"   alt="Fractal normal buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="f_worldpos" src="data:image/jpeg;base64,{{F_WORLDPOS}}" alt="Fractal world position buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="f_depth"    src="data:image/jpeg;base64,{{F_DEPTH}}"    alt="Fractal depth buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="s_normal"   src="data:image/jpeg;base64,{{S_NORMAL}}"   alt="Sanctuary normal buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="s_worldpos" src="data:image/jpeg;base64,{{S_WORLDPOS}}" alt="Sanctuary world position buffer." width="1600" height="900" loading="lazy" decoding="async">
 
-        <img class="lay final on" data-k="w_final" src="data:image/jpeg;base64,{{W_FINAL}}" alt="The voxel world, final lit frame.">
-        <img class="lay final"    data-k="f_final" src="data:image/jpeg;base64,{{F_FINAL}}" alt="The fractal, final lit frame.">
-        <img class="lay final"    data-k="s_final" src="data:image/jpeg;base64,{{S_FINAL}}" alt="The sanctuary arcade, final lit frame.">
+        <img class="lay final on" data-k="w_final" src="data:image/jpeg;base64,{{W_FINAL}}" alt="The voxel world, final lit frame." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay final"    data-k="f_final" src="data:image/jpeg;base64,{{F_FINAL}}" alt="The fractal, final lit frame." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay final"    data-k="s_final" src="data:image/jpeg;base64,{{S_FINAL}}" alt="The sanctuary arcade, final lit frame." width="1600" height="900" loading="lazy" decoding="async">
 
         <div class="divider" id="divider"></div>
         <span class="edge l">Lit</span>
@@ -1014,7 +1041,7 @@
 
     <article class="record">
       <a class="still" href="https://www.youtube.com/watch?v=13XTC-PXoQw" target="_blank" rel="noopener">
-        <img src="data:image/jpeg;base64,{{THUMB_ATLAS}}" alt="Still from the voxel descent: a fogged surface world of stone towers.">
+        <img src="data:image/jpeg;base64,{{THUMB_ATLAS}}" alt="Still from the voxel descent: a fogged surface world of stone towers." width="1000" height="563" loading="lazy" decoding="async">
       </a>
       <div class="body">
       <h2><a href="https://www.youtube.com/watch?v=13XTC-PXoQw" target="_blank" rel="noopener">The Descent</a></h2>
@@ -1038,7 +1065,7 @@
 
     <article class="record">
       <a class="still" href="https://www.youtube.com/watch?v=tYD8Lvaz0_I" target="_blank" rel="noopener">
-        <img src="data:image/jpeg;base64,{{THUMB_64K}}" alt="Still from the 64k intro: procedurally generated geometry and lighting.">
+        <img src="data:image/jpeg;base64,{{THUMB_64K}}" alt="Still from the 64k intro: procedurally generated geometry and lighting." width="1400" height="788" loading="lazy" decoding="async">
       </a>
       <div class="body">
       <h2><a href="https://www.youtube.com/watch?v=tYD8Lvaz0_I" target="_blank" rel="noopener">64k intro in 19 KB</a></h2>
@@ -1133,14 +1160,14 @@
       </ul>
 
       <div class="shot" id="shadeStage">
-        <img class="lay on" data-m="0" src="data:image/jpeg;base64,{{SH_0}}" alt="Physically based shading on a sphere, cube and torus.">
-        <img class="lay"    data-m="1" src="data:image/jpeg;base64,{{SH_1}}" alt="Toon shading, diffuse quantised into bands.">
-        <img class="lay"    data-m="2" src="data:image/jpeg;base64,{{SH_2}}" alt="Wireframe shading, glowing silhouette edges on dark bodies.">
-        <img class="lay"    data-m="3" src="data:image/jpeg;base64,{{SH_3}}" alt="Iridescent shading, thin-film colour shifting with view angle.">
-        <img class="lay"    data-m="4" src="data:image/jpeg;base64,{{SH_4}}" alt="Hatching, stroke density standing in for tone.">
-        <img class="lay"    data-m="5" src="data:image/jpeg;base64,{{SH_5}}" alt="Fresnel rim weighting at grazing angles.">
-        <img class="lay"    data-m="6" src="data:image/jpeg;base64,{{SH_6}}" alt="Matcap, lighting sampled from a view-space lookup.">
-        <img class="lay"    data-m="7" src="data:image/jpeg;base64,{{SH_7}}" alt="Gooch shading, warm to cool tone mapping.">
+        <img class="lay on" data-m="0" src="data:image/jpeg;base64,{{SH_0}}" alt="Physically based shading on a sphere, cube and torus." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="1" src="data:image/jpeg;base64,{{SH_1}}" alt="Toon shading, diffuse quantised into bands." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="2" src="data:image/jpeg;base64,{{SH_2}}" alt="Wireframe shading, glowing silhouette edges on dark bodies." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="3" src="data:image/jpeg;base64,{{SH_3}}" alt="Iridescent shading, thin-film colour shifting with view angle." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="4" src="data:image/jpeg;base64,{{SH_4}}" alt="Hatching, stroke density standing in for tone." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="5" src="data:image/jpeg;base64,{{SH_5}}" alt="Fresnel rim weighting at grazing angles." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="6" src="data:image/jpeg;base64,{{SH_6}}" alt="Matcap, lighting sampled from a view-space lookup." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="7" src="data:image/jpeg;base64,{{SH_7}}" alt="Gooch shading, warm to cool tone mapping." width="1400" height="788" loading="lazy" decoding="async">
       </div>
 
       <p class="caption" id="shadeCap"></p>
@@ -1170,15 +1197,15 @@
       </ul>
 
       <div class="shot" id="stoneStage">
-        <img class="lay on" data-m="0" src="data:image/jpeg;base64,{{GEM_0}}" alt="Water sphere, refractive index 1.33.">
-        <img class="lay"    data-m="1" src="data:image/jpeg;base64,{{GEM_1}}" alt="Emerald hexagonal prism, refractive index 1.55.">
-        <img class="lay"    data-m="2" src="data:image/jpeg;base64,{{GEM_2}}" alt="Ice cube, refractive index 1.50.">
-        <img class="lay"    data-m="3" src="data:image/jpeg;base64,{{GEM_3}}" alt="Diamond tetrahedron, refractive index 2.42.">
-        <img class="lay"    data-m="4" src="data:image/jpeg;base64,{{GEM_4}}" alt="Sapphire octahedron, refractive index 1.77.">
-        <img class="lay"    data-m="5" src="data:image/jpeg;base64,{{GEM_5}}" alt="Glass sphere, refractive index 1.50.">
-        <img class="lay"    data-m="6" src="data:image/jpeg;base64,{{GEM_6}}" alt="Diamond cube, refractive index 2.42.">
-        <img class="lay"    data-m="7" src="data:image/jpeg;base64,{{GEM_7}}" alt="Ruby tetrahedron, refractive index 1.77.">
-        <img class="lay"    data-m="8" src="data:image/jpeg;base64,{{GEM_TEAR}}" alt="The stone mid-change, shredded into blocks between the outgoing and incoming shape.">
+        <img class="lay on" data-m="0" src="data:image/jpeg;base64,{{GEM_0}}" alt="Water sphere, refractive index 1.33." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="1" src="data:image/jpeg;base64,{{GEM_1}}" alt="Emerald hexagonal prism, refractive index 1.55." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="2" src="data:image/jpeg;base64,{{GEM_2}}" alt="Ice cube, refractive index 1.50." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="3" src="data:image/jpeg;base64,{{GEM_3}}" alt="Diamond tetrahedron, refractive index 2.42." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="4" src="data:image/jpeg;base64,{{GEM_4}}" alt="Sapphire octahedron, refractive index 1.77." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="5" src="data:image/jpeg;base64,{{GEM_5}}" alt="Glass sphere, refractive index 1.50." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="6" src="data:image/jpeg;base64,{{GEM_6}}" alt="Diamond cube, refractive index 2.42." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="7" src="data:image/jpeg;base64,{{GEM_7}}" alt="Ruby tetrahedron, refractive index 1.77." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="8" src="data:image/jpeg;base64,{{GEM_TEAR}}" alt="The stone mid-change, shredded into blocks between the outgoing and incoming shape." width="1400" height="788" loading="lazy" decoding="async">
       </div>
 
       <p class="caption" id="stoneCap"></p>
@@ -1200,7 +1227,7 @@
 
     <article class="record">
       <a class="still" href="https://www.youtube.com/watch?v=P5Y6Vqw8sb4" target="_blank" rel="noopener">
-        <img src="data:image/jpeg;base64,{{THUMB_CASA}}" alt="Still from the Casablanca renderer: the city rendered in real time from OpenStreetMap data.">
+        <img src="data:image/jpeg;base64,{{THUMB_CASA}}" alt="Still from the Casablanca renderer: the city rendered in real time from OpenStreetMap data." width="1280" height="720" loading="lazy" decoding="async">
       </a>
       <div class="body">
       <h2><a href="https://www.youtube.com/watch?v=P5Y6Vqw8sb4" target="_blank" rel="noopener">Casablanca in real time, 134,000 buildings</a></h2>

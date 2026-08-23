@@ -32,7 +32,8 @@ foreach ($e in $map.PSObject.Properties) {
 # The template starts at <title>. A hosted page needs its own document around
 # it. Without the viewport meta, phones render at desktop width and zoom out.
 $domain = 'https://sh0drun.dev'
-$desc   = 'Real-time rendering by sh0drun. Atlas, a deferred PBR engine written from scratch, a 64k demoscene intro, and Casablanca rendered in real time.'
+$desc   = 'Anass Razik, graphics programmer in Casablanca. Real-time renderers built from scratch in C++ and OpenGL 4.5: a deferred PBR engine, a 19 KB intro, a whole city.'
+$ttl    = 'Anass Razik (sh0drun), real-time graphics programmer'
 
 $split = $hosted.IndexOf('</style>')
 if ($split -lt 0) { throw 'no </style>, cannot split head from body' }
@@ -53,13 +54,13 @@ $hosted = @"
 <link rel="canonical" href="$domain/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="$domain/">
-<meta property="og:title" content="sh0drun">
+<meta property="og:title" content="$ttl">
 <meta property="og:description" content="$desc">
 <meta property="og:image" content="$domain/assets/img/hero.jpg">
 <meta property="og:image:width" content="1600">
 <meta property="og:image:height" content="900">
 <meta name="twitter:card" content="summary_large_image">
-$headInner
+$($headInner -replace '<title>[^<]*</title>', "<title>$ttl</title>")
 </head>
 <body>
 $bodyInner
@@ -84,6 +85,22 @@ $utf8 = New-Object Text.UTF8Encoding($false)
 [IO.File]::WriteAllText("$root\index.html", $hosted, $utf8)
 'index.html  {0} KB  {1} asset refs' -f [math]::Round((Get-Item "$root\index.html").Length/1kb), ([regex]::Matches($hosted,'assets/(?:img|fonts)/')).Count
 
+# A one page site still gets a sitemap: it is the cheapest way to tell a
+# crawler the canonical URL and when the page last changed.
+$stamp = (Get-Item "$root\index.html").LastWriteTime.ToString('yyyy-MM-dd')
+$xml = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>$domain/</loc>
+    <lastmod>$stamp</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
+"@
+[IO.File]::WriteAllText("$root\sitemap.xml", $xml, $utf8)
+'sitemap.xml written, lastmod {0}' -f $stamp
 if ($InlinePath) {
     [IO.File]::WriteAllText($InlinePath, $inline, $utf8)
     '{0}  {1} MB  {2} data URIs' -f $InlinePath, [math]::Round((Get-Item $InlinePath).Length/1mb,2), ([regex]::Matches($inline,'base64,')).Count
