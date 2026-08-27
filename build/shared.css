@@ -1,0 +1,724 @@
+  /* One family throughout. Display is the same mono at 700, not a second face.
+     Bitmap is for small labels only. */
+  @font-face {
+    font-family: "Plex";
+    src: url("data:font/woff2;base64,{{FONT_PLEX400}}") format("woff2");
+    font-weight: 400; font-style: normal; font-display: block;
+  }
+  @font-face {
+    font-family: "Plex";
+    src: url("data:font/woff2;base64,{{FONT_PLEX700}}") format("woff2");
+    font-weight: 700; font-style: normal; font-display: block;
+  }
+  @font-face {
+    font-family: "Bitmap";
+    src: url("data:font/woff2;base64,{{FONT_BITMAP}}") format("woff2");
+    font-weight: 400; font-style: normal; font-display: block;
+  }
+  @font-face {
+    font-family: "Display";
+    src: url("data:font/woff2;base64,{{FONT_CHAKRA}}") format("woff2");
+    font-weight: 700; font-style: normal; font-display: block;
+  }
+
+  /* Dark only. A light ground fights every image on the page. No hue in the
+     interface either, the renders carry enough. Neutrals take a cool cast. */
+  :root {
+    --ground:  #080A0E;
+    --raise:   #12161C;
+    --line:    rgba(216,222,230,0.14);
+    --text:    #D8DEE6;
+    --muted:   rgba(216,222,230,0.56);
+    --dim:     rgba(216,222,230,0.33);
+    --accent:  #FFFFFF;
+    --scrim:   rgba(5,7,10,0.76);
+
+    --display: "Plex", ui-monospace, monospace;
+    --mono: "Plex", ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --label: "Bitmap", "Plex", ui-monospace, monospace;
+  --name:  "Display", "Plex", ui-monospace, monospace;
+    --pad: clamp(1.25rem, 5vw, 5rem);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+  }
+
+  .wrap { display: flex; flex-direction: column; }
+
+  section { padding: clamp(3.5rem, 9vw, 7rem) var(--pad); border-top: 1px solid var(--line); }
+  .measure { max-width: 62ch; }
+
+  /* ---- hero ---- */
+
+  header {
+    position: relative;
+    min-height: min(86vh, 780px);
+    display: flex;
+    align-items: flex-end;
+    padding: var(--pad);
+    overflow: hidden;
+  }
+  header .bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(0.9);
+  }
+
+  /* The live shader sits over the still. It only reveals itself once the
+     context, the compile and the link have all succeeded, so anything without
+     WebGL2 keeps the image and never sees a blank rectangle. */
+  header .gl {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    display: block;
+    opacity: 0;
+    transition: opacity 700ms ease;
+  }
+  header .gl.on { opacity: 1; }
+  /* Horizontal scrim, the device both references use to keep type legible
+     over an image without dimming the whole picture. */
+  header::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, var(--scrim) 0%, rgba(4,5,7,0.45) 45%, transparent 78%),
+      linear-gradient(0deg, var(--scrim) 0%, transparent 55%);
+  }
+  header .lead { position: relative; z-index: 1; max-width: 110ch; }
+
+  /* Monospace is wide by design, so display sizes need the tracking pulled in
+     hard or the word falls apart across the screen. */
+  h1 {
+    font-family: var(--name); font-weight: 700;
+    font-size: clamp(2.4rem, 9vw, 6.5rem); line-height: 0.95;
+    letter-spacing: 0.005em; text-transform: uppercase;
+    margin: 0 0 1.5rem; color: var(--accent);
+  }
+
+
+  .standfirst { margin: 0; color: var(--text); max-width: 110ch; }
+  .standfirst strong { color: var(--accent); font-weight: 400; }
+
+  /* ---- headings ---- */
+
+  h2, h3 {
+    font-family: var(--display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.035em;
+    margin: 0;
+  }
+  section h3 {
+    font-size: clamp(1.6rem, 4.6vw, 3rem);
+    line-height: 0.98;
+    margin: 0 0 1.5rem;
+    color: var(--accent);
+  }
+  .lede { margin: 0 0 2.5rem; color: var(--muted); max-width: 62ch; }
+
+  /* ---- work: the image is the item, text sits on it ---- */
+
+  .work { display: flex; flex-direction: column; }
+
+  .record {
+    position: relative;
+    border-top: 1px solid var(--line);
+    min-height: min(78vh, 680px);
+    display: flex;
+    align-items: flex-end;
+    padding: var(--pad);
+    overflow: hidden;
+  }
+  .record .still {
+    position: absolute; inset: 0;
+    display: block; border: 0; line-height: 0;
+  }
+  .record .still img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  .record::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, var(--scrim) 0%, rgba(4,5,7,0.5) 42%, transparent 75%),
+      linear-gradient(0deg, var(--scrim) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .record .body { position: relative; z-index: 1; max-width: 46ch; }
+  .record:hover .still img { filter: saturate(1.05); }
+
+  .record h2 {
+    font-size: clamp(1.6rem, 4.5vw, 2.9rem);
+    line-height: 0.98;
+    margin: 0 0 0.9rem;
+  }
+  .record h2 a { color: inherit; text-decoration: none; }
+  .record h2 a:hover { color: var(--accent); }
+
+  .meta {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 0 1.25rem;
+    margin: 0 0 1rem; padding: 0;
+  }
+
+  .note { margin: 0 0 1.25rem; color: var(--text); }
+  section .note { max-width: 62ch; color: var(--muted); }
+
+  /* Links inside running text. Underlined rather than coloured, since the
+     palette has no hue to spend and white already means emphasis. */
+  .note a, .stack a {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--dim);
+  }
+  .note a:hover, .stack a:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+  }
+  .note a:focus-visible, .stack a:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 3px;
+  }
+
+  /* ---- roles ----
+     A Gantt, not a single axis. Seven roles with labels cannot share one
+     horizontal line: the three month contracts collide with the three year
+     ones. Rows kill the collision, the bars keep the true proportions. */
+  .roles {
+    list-style: none; margin: 0 0 1.75rem; padding: 0;
+    display: flex; flex-direction: column; gap: 0.15rem;
+    max-width: 78rem;
+  }
+  .roles li {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 22rem) minmax(0, 1fr);
+    align-items: center; gap: 0 1.25rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .roles li:last-child { border-bottom: 0; }
+
+  .roles .when {
+    font-family: var(--mono); font-size: 0.75rem;
+    font-variant-numeric: tabular-nums; color: var(--dim);
+  }
+  .roles .what { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); }
+  .roles .what b {
+    font-family: var(--display); font-weight: 700;
+    font-size: 1rem; text-transform: uppercase; letter-spacing: -0.02em;
+    color: var(--text); margin-right: 0.5rem;
+  }
+  .roles .now .what b { color: var(--accent); }
+  /* ---- experience ----
+     The only section taller than a viewport. It anchors to the top and does not
+     force a snap stop, so a scroll reads through it rather than being held. */
+  section.wide { justify-content: flex-start; scroll-snap-stop: normal; }
+
+  .xp { list-style: none; margin: 0; padding: 0; max-width: 78rem; }
+  .xp > li { padding: 1.6rem 0; border-top: 1px solid var(--line); }
+  .xp > li:last-child { border-bottom: 1px solid var(--line); }
+
+  .xh {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline; gap: 0 1.5rem; margin-bottom: 0.75rem;
+  }
+  .co {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(1rem, 2vw, 1.3rem); text-transform: uppercase;
+    letter-spacing: -0.02em; color: var(--text); margin-right: 0.75rem;
+  }
+  .xp > li:first-child .co { color: var(--accent); }
+  .ro { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); }
+  .dt {
+    font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--dim); text-align: right;
+    grid-row: span 2; font-variant-numeric: tabular-nums;
+  }
+  .dt span { color: var(--line); }
+
+  .xp p {
+    margin: 0 0 0.75rem; font-family: var(--mono); font-size: 0.8125rem;
+    line-height: 1.65; color: var(--muted); max-width: 76ch;
+  }
+  .xp ul { margin: 0 0 1rem; padding: 0; list-style: none; max-width: 82ch; }
+  .xp ul li {
+    font-family: var(--mono); font-size: 0.78125rem; line-height: 1.6;
+    color: var(--dim); padding-left: 1.1rem; position: relative;
+  }
+  .xp ul li::before { content: ">"; position: absolute; left: 0; color: var(--line); }
+
+  .tech { display: flex; flex-wrap: wrap; gap: 0.35rem 0.4rem; }
+  .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .ic {
+    width: 0.95em; height: 0.95em;
+    flex-shrink: 0; margin-right: 0.4em; vertical-align: -0.1em;
+  }
+  .skills span, .tech span { display: inline-flex; align-items: center; }
+
+  .tech span {
+    font-family: var(--mono); font-size: 0.6875rem; color: var(--muted);
+    border: 1px solid var(--line); padding: 0.1rem 0.45rem;
+  }
+
+  @media (max-width: 60rem) {
+    .xh { grid-template-columns: minmax(0, 1fr); }
+    .dt { grid-row: auto; text-align: left; margin-top: 0.35rem; }
+    .dt br { display: none; }
+    .dt span::before { content: " / "; }
+  }
+
+  .roles .off .what b { color: var(--dim); }
+
+  /* The bar sits on a shared 2018 to 2026 axis, so a row position is a date. */
+  .roles .track { position: relative; height: 1.4rem; }
+  .roles .bar {
+    position: absolute; top: 50%; height: 0.5rem;
+    left: var(--a); width: var(--w);
+    transform: translateY(-50%) scaleX(0); transform-origin: left center;
+    background: var(--muted);
+    transition: transform 620ms cubic-bezier(.22,.61,.36,1);
+  }
+  .roles .now .bar { background: var(--accent); }
+  /* Time off, not a role: drawn hollow. */
+  .roles .off .bar { background: none; border: 1px dashed var(--dim); }
+  .roles.drawn .bar { transform: translateY(-50%) scaleX(1); }
+  .roles li:nth-child(2) .bar { transition-delay:   0ms; }
+  .roles li:nth-child(3) .bar { transition-delay:  70ms; }
+  .roles li:nth-child(4) .bar { transition-delay: 130ms; }
+  .roles li:nth-child(5) .bar { transition-delay: 180ms; }
+  .roles li:nth-child(6) .bar { transition-delay: 220ms; }
+  .roles li:nth-child(7) .bar { transition-delay: 270ms; }
+  .roles li:nth-child(8) .bar { transition-delay: 330ms; }
+
+  /* Year marks live in their own row so they can never cross a bar. */
+  .roles .scale { border-bottom: 1px solid var(--line); padding-bottom: 0.1rem; }
+  .roles .scale .track { height: 1rem; }
+  .roles .scale i {
+    position: absolute; left: var(--x); bottom: 0;
+    font-style: normal; font-family: var(--mono);
+    font-size: 0.6875rem; font-variant-numeric: tabular-nums; color: var(--dim);
+  }
+
+  @media (max-width: 60rem) {
+    .roles li { grid-template-columns: 6rem minmax(0, 1fr); }
+    .roles .track { grid-column: 1 / -1; height: 1rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .roles .bar { transition: none; } }
+
+  /* ---- other projects ----
+     Rows, not panels. These are worth showing but must not compete with the
+     renderers for attention, so they get one line of description each. */
+  .also { list-style: none; margin: 0; padding: 0; max-width: 74rem; }
+  .also li {
+    display: grid;
+    grid-template-columns: minmax(0, 16rem) 5rem minmax(0, 1fr);
+    align-items: baseline; gap: 0 1.5rem;
+    padding: 0.85rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .also li:last-child { border-bottom: 1px solid var(--line); }
+  .also a {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(1rem, 2vw, 1.35rem);
+    text-transform: uppercase; letter-spacing: -0.02em;
+    color: var(--text); text-decoration: none;
+  }
+  .also a:hover { color: var(--accent); }
+  .also a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .also .lang {
+    font-family: var(--mono); font-size: 0.6875rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim);
+  }
+  .also p {
+    margin: 0; font-family: var(--mono); font-size: 0.8125rem;
+    line-height: 1.6; color: var(--muted);
+  }
+  @media (max-width: 60rem) {
+    .also li { grid-template-columns: minmax(0, 1fr) 5rem; row-gap: 0.4rem; }
+    .also p { grid-column: 1 / -1; }
+  }
+  /* ---- grouped technology listing ---- */
+  .skills { display: flex; flex-direction: column; gap: 0.9rem; margin: 0; }
+  .skills .grp { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem 0.75rem; }
+  .skills h4 {
+    margin: 0; min-width: 8.5rem;
+    font-family: var(--mono); font-weight: 400;
+    font-size: 0.75rem; color: var(--dim);
+  }
+  .skills h4::before { content: "// "; }
+  .skills span {
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--text);
+    border: 1px solid var(--line);
+    padding: 0.15rem 0.5rem;
+  }
+  .skills span.hi { color: var(--accent); border-color: var(--accent); }
+
+  .systems {
+    font-family: var(--mono); font-size: 0.75rem;
+    line-height: 1.8; color: var(--muted);
+    margin: 0; padding: 0; list-style: none;
+    columns: 2; column-gap: 2rem;
+  }
+  .systems li { break-inside: avoid; }
+  .systems li::before { content: "> "; color: var(--accent); }
+
+  /* ---- data blocks ---- */
+
+  .stack {
+    display: grid; grid-template-columns: 11rem 1fr;
+    gap: 0.35rem 2rem;
+    font-family: var(--mono); font-size: 0.8125rem;
+    line-height: 1.7; margin: 2rem 0 0; max-width: 76ch;
+  }
+  .stack dt {
+    color: var(--accent); text-transform: uppercase;
+    font-size: 0.6875rem; letter-spacing: 0.14em; padding-top: 0.35em;
+  }
+  .stack dd { margin: 0; color: var(--text); }
+  .stack code { font-family: var(--mono); color: var(--accent); }
+
+  /* ---- decomposition and galleries ---- */
+
+  .decomp { display: flex; flex-direction: column; gap: 1rem; }
+
+  .stage, .shot {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--raise);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .stage { --pos: 55%; touch-action: pan-y; }
+
+  .stage img.lay, .shot img.lay {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; display: none;
+    user-select: none; -webkit-user-drag: none;
+  }
+  .stage img.lay.on, .shot img.lay.on { display: block; }
+  .stage img.final.on { clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+
+  .divider {
+    position: absolute; top: 0; bottom: 0;
+    left: var(--pos); width: 1px;
+    background: var(--accent);
+    pointer-events: none; z-index: 2;
+  }
+  .divider::after {
+    content: ""; position: absolute;
+    top: 50%; left: 50%;
+    width: 1.75rem; height: 1.75rem;
+    transform: translate(-50%, -50%);
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  /* Must stay under the annotations or it swallows their hover and click. */
+  .grab {
+    position: absolute; inset: 0;
+    width: 100%; margin: 0; padding: 0;
+    opacity: 0; cursor: ew-resize;
+    -webkit-appearance: none; appearance: none;
+    background: transparent; z-index: 3;
+  }
+  .grab:focus-visible { opacity: 1; outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .edge {
+    position: absolute; bottom: 0.75rem;
+    font-family: var(--mono); font-size: 0.625rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.95);
+    pointer-events: none; z-index: 2;
+  }
+  .edge.l { left: 1rem; }
+  .edge.r { right: 1rem; }
+
+  .leads { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
+  .leads line {
+    stroke: var(--accent); stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0; transition: opacity 140ms ease;
+  }
+
+  .anno {
+    position: absolute;
+    width: 1.25rem; height: 1.25rem;
+    transform: translate(-50%, -50%);
+    padding: 0; margin: 0;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    background: rgba(7,8,11,0.5);
+    cursor: pointer; z-index: 5;
+  }
+  .anno::before {
+    content: ""; position: absolute;
+    top: 50%; left: 50%; width: 3px; height: 3px;
+    transform: translate(-50%, -50%);
+    background: var(--accent); border-radius: 50%;
+  }
+  .anno:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .stage[data-subject="w"] .anno { display: block; }
+  .stage .anno { display: none; }
+
+  .panel {
+    position: absolute;
+    left: var(--lx); top: var(--ly);
+    width: 13rem; padding: 0.6rem 0.75rem;
+    background: rgba(7,8,11,0.88);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    font-family: var(--mono); font-size: 0.6875rem;
+    line-height: 1.6; text-align: left;
+    pointer-events: none; opacity: 0;
+    transition: opacity 140ms ease; z-index: 6;
+  }
+  .panel.left  { transform: translate(-100%, -50%); }
+  .panel.right { transform: translate(0, -50%); }
+  .panel::before {
+    content: ""; position: absolute;
+    top: 50%; width: 0.5rem; height: 1px; background: var(--accent);
+  }
+  .panel.left::before  { right: -0.5rem; }
+  .panel.right::before { left: -0.5rem; }
+
+  .stage[data-active="a"] #lead-a, .stage[data-active="b"] #lead-b,
+  .stage[data-active="c"] #lead-c, .stage[data-active="d"] #lead-d { opacity: 1; }
+  .stage[data-active="a"] #panel-a, .stage[data-active="b"] #panel-b,
+  .stage[data-active="c"] #panel-c, .stage[data-active="d"] #panel-d { opacity: 1; }
+
+  /* ---- selectors ---- */
+
+  .subjects, .channels {
+    display: flex; flex-wrap: wrap;
+    margin: 0; padding: 0; list-style: none;
+  }
+  .subjects { gap: 0 1.5rem; margin-bottom: 0.5rem; }
+  .subjects button {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(1rem, 2.2vw, 1.4rem);
+    text-transform: uppercase; letter-spacing: 0.01em;
+    padding: 0.2rem 0; color: var(--dim);
+    background: none; border: none; border-bottom: 2px solid transparent;
+    cursor: pointer;
+  }
+  .subjects button:hover { color: var(--text); }
+  .subjects button[aria-pressed="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+  .subjects.shade button { font-size: clamp(0.875rem, 1.6vw, 1.05rem); }
+
+  .channels { gap: 0.4rem; }
+  .channels button {
+    font-family: var(--mono); font-size: 0.6875rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 0.4rem 0.75rem;
+    color: var(--muted); background: var(--raise);
+    border: 1px solid var(--line); cursor: pointer;
+  }
+  .channels button:hover { color: var(--text); }
+  .channels button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); background: transparent; }
+
+  .subjects button:focus-visible, .channels button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+
+  .caption {
+    font-family: var(--mono); font-size: 0.8125rem;
+    color: var(--muted); margin: 0; min-height: 3.4em; max-width: 70ch;
+  }
+
+  /* ---- size chart ---- */
+
+  .chart { margin: 0 0 2rem; max-width: 74rem; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart .ceil {
+    stroke: var(--dim); stroke-width: 1; stroke-dasharray: 3 4;
+    vector-effect: non-scaling-stroke;
+  }
+  .chart .tick {
+    fill: var(--muted); font-family: var(--mono);
+    font-size: 11px; font-variant-numeric: tabular-nums;
+  }
+
+  /* Both lines draw in on scroll. The ceiling does not, the budget never moved.
+     Packed climbs slower than raw so the gap opens as you watch. */
+  .chart .raw {
+    fill: none; stroke: var(--muted); stroke-width: 1.5;
+    stroke-linejoin: round; vector-effect: non-scaling-stroke;
+    transition: stroke-dashoffset 1.5s cubic-bezier(.25,.6,.35,1);
+  }
+  .chart .packed {
+    fill: none; stroke: var(--accent); stroke-width: 2;
+    stroke-linejoin: round; vector-effect: non-scaling-stroke;
+    transition: stroke-dashoffset 2.3s cubic-bezier(.25,.6,.35,1) 0.12s;
+  }
+  .chart .dot { fill: var(--accent); opacity: 0; transition: opacity 0.45s ease 1.6s; }
+  .chart.drawn .dot { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chart .raw, .chart .packed, .chart .dot { transition: none; }
+  }
+  .chart figcaption {
+    display: flex; flex-wrap: wrap; gap: 0 1.5rem; margin-top: 1rem;
+    font-family: var(--mono); font-size: 0.6875rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  }
+  .chart .key { display: inline-block; width: 1.1rem; height: 0; margin-right: 0.5rem; vertical-align: middle; }
+  .chart .key.raw { border-top: 2px solid var(--muted); }
+  .chart .key.packed { border-top: 2px solid var(--accent); }
+
+  /* ---- contact ---- */
+
+  .contact {
+    display: flex; flex-direction: column; gap: 0.4rem;
+    font-family: var(--mono); font-size: 0.8125rem;
+  }
+  .contact a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; }
+  .contact a:hover { color: var(--accent); }
+  .contact a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  /* Footer. One page, so there is no sitemap to link. Two columns: how to
+     reach me, and the sites this one learned from. */
+  .foot {
+    display: flex; flex-wrap: wrap; align-items: flex-start;
+    gap: 2.5rem 6rem;
+  }
+  .credits h4 {
+    margin: 0 0 0.75rem; font-family: var(--mono); font-weight: 400;
+    font-size: 0.6875rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--dim);
+  }
+  .credits ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+  .credits a {
+    font-family: var(--mono); font-size: 0.8125rem; color: var(--muted);
+    text-decoration: none;
+  }
+  .credits a:hover { color: var(--accent); }
+  .credits a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .colophon {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.75rem;
+    margin: 3rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .colophon .at { color: var(--muted); display: inline-flex; align-items: center; }
+  .colophon .at i {
+    width: 0.4rem; height: 0.4rem; border-radius: 50%;
+    background: #4ADE80; margin-right: 0.55rem; flex-shrink: 0;
+  }
+  .colophon .cr { margin-left: auto; }
+  @media (max-width: 52rem) {
+    .foot { gap: 2rem; }
+    .colophon .cr { margin-left: 0; }
+  }
+
+  @media (max-width: 48rem) {
+    .systems { columns: 1; }
+    .stack { grid-template-columns: 1fr; gap: 0; }
+    .stack dd { margin-bottom: 1.1rem; }
+    .record, header { min-height: 62vh; }
+  }
+
+  /* ---- navbar ----
+     Fixed, thin, and out of the way. Sections are full-viewport panels that
+     snap, so the bar cannot be tall or it eats the top of every one. It sits
+     over the hero shader, so it carries its own blur rather than a scrim,
+     which would flatten the image behind it. */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+    display: flex; align-items: center; gap: 1.5rem;
+    padding: 0.7rem var(--pad);
+    font-family: var(--mono); font-size: 0.6875rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    background: rgba(8, 10, 14, 0.72);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav .mark {
+    font-family: var(--name); font-weight: 700; font-size: 0.9rem;
+    letter-spacing: 0.02em; color: var(--accent); text-decoration: none;
+    margin-right: auto;
+  }
+  .nav a { color: var(--dim); text-decoration: none; }
+  .nav a:hover { color: var(--text); }
+  .nav a[aria-current="page"] { color: var(--text); }
+  .nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* The bar overlays the first panel, so give every snap target room for it. */
+  header, .record, section { scroll-margin-top: 2.6rem; }
+  /* ---- one screen per section ----------------------------------------------
+     Every section is a full viewport panel and the scroll snaps to it, so a
+     scroll always lands on the next thing rather than halfway between two.
+     dvh rather than vh because mobile browsers change the visible height as
+     the address bar hides, and vh would leave the last line clipped. */
+  html {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  header, .record, section {
+    min-height: 100vh;
+    min-height: 100dvh;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  header, .record { align-items: stretch; }
+  header .lead, .record .body { width: 100%; }
+
+  section { padding: clamp(1.5rem, 4vh, 3.5rem) var(--pad); }
+  section h3 { margin-bottom: clamp(0.5rem, 1.5vh, 1.25rem); }
+  .lede { margin-bottom: clamp(1rem, 2.5vh, 2rem); }
+
+  /* The stage keeps 16:9, so cap it by HEIGHT and let width follow. Capping
+     width instead would make it taller than the screen on a narrow window. */
+  .stage, .shot {
+    width: min(100%, calc(52dvh * 16 / 9));
+    max-width: 100%;
+    align-self: center;
+  }
+
+  /* The stage must NOT clip: the buffer images are inset:0 so they cannot
+     overflow, and the wipe is done with clip-path rather than by clipping the
+     box. The only thing overflow:hidden achieved here was cutting the ends off
+     the callout panels. */
+  .stage { overflow: visible; }
+  .decomp { gap: clamp(0.5rem, 1.5vh, 1rem); }
+  .caption { min-height: 0; }
+
+  .chart { max-height: 40dvh; }
+  .chart svg { max-height: 34dvh; }
+  .stack { margin-top: clamp(0.75rem, 2vh, 2rem); }
+
+  /* Spec lists sit under a visual in the densest sections. Flowing them two
+     pairs to a row spends horizontal space instead of vertical, which is what
+     decides whether the section fits on one screen. */
+  @media (min-width: 62rem) {
+    .stack { grid-template-columns: 10rem minmax(0,1fr) 10rem minmax(0,1fr); max-width: none; }
+  }
+
+  /* A section taller than the screen would trap a mandatory snap, so the two
+     densest ones drop to a single centred column and tighten their leading. */
+  @media (max-height: 46rem) {
+    .systems { font-size: 0.6875rem; line-height: 1.6; }
+    .stack { font-size: 0.75rem; line-height: 1.5; }
+    .stage, .shot { width: min(100%, calc(44dvh * 16 / 9)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

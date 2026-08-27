@@ -1,0 +1,604 @@
+<nav class="nav">
+  <a class="mark" href="/">sh0drun</a>
+  <a href="/blog/" aria-current="page">Work</a>
+  <a href="/#contact">Contact</a>
+</nav>
+<div class="wrap">
+
+  <section>
+    <h3>Inside a frame</h3>
+    <p class="lede">
+      Three frames from the reel, and the buffers each one is assembled from. Pick a scene,
+      drag the divider, switch the channel underneath. Every image is engine output at the
+      same camera. Nothing here is a diagram.
+    </p>
+
+    <div class="decomp">
+      <ul class="subjects" id="subjects">
+        <li><button aria-pressed="true"  data-s="w">The World</button></li>
+        <li><button aria-pressed="false" data-s="f">Fractal</button></li>
+        <li><button aria-pressed="false" data-s="s">Sanctuary</button></li>
+      </ul>
+
+      <div class="stage" id="stage">
+        <img class="lay chan on" data-k="w_albedo"   src="data:image/jpeg;base64,{{W_ALBEDO}}"   alt="Voxel world albedo buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="w_normal"   src="data:image/jpeg;base64,{{W_NORMAL}}"   alt="Voxel world normal buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="w_worldpos" src="data:image/jpeg;base64,{{W_WORLDPOS}}" alt="Voxel world position buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="w_depth"    src="data:image/jpeg;base64,{{W_DEPTH}}"    alt="Voxel world depth buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="f_albedo"   src="data:image/jpeg;base64,{{F_ALBEDO}}"   alt="Fractal albedo buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="f_normal"   src="data:image/jpeg;base64,{{F_NORMAL}}"   alt="Fractal normal buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="f_worldpos" src="data:image/jpeg;base64,{{F_WORLDPOS}}" alt="Fractal world position buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="f_depth"    src="data:image/jpeg;base64,{{F_DEPTH}}"    alt="Fractal depth buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="s_normal"   src="data:image/jpeg;base64,{{S_NORMAL}}"   alt="Sanctuary normal buffer." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay chan"    data-k="s_worldpos" src="data:image/jpeg;base64,{{S_WORLDPOS}}" alt="Sanctuary world position buffer." width="1600" height="900" loading="lazy" decoding="async">
+
+        <img class="lay final on" data-k="w_final" src="data:image/jpeg;base64,{{W_FINAL}}" alt="The voxel world, final lit frame." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay final"    data-k="f_final" src="data:image/jpeg;base64,{{F_FINAL}}" alt="The fractal, final lit frame." width="1600" height="900" loading="lazy" decoding="async">
+        <img class="lay final"    data-k="s_final" src="data:image/jpeg;base64,{{S_FINAL}}" alt="The sanctuary arcade, final lit frame." width="1600" height="900" loading="lazy" decoding="async">
+
+        <div class="divider" id="divider"></div>
+        <span class="edge l">Lit</span>
+        <span class="edge r">Buffer</span>
+
+        <input class="grab" id="grab" type="range" min="0" max="100" value="55"
+               aria-label="Wipe between the lit frame and the selected buffer">
+
+        <svg class="leads" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <line id="lead-a" x1="53" y1="62" x2="76" y2="76"></line>
+          <line id="lead-b" x1="87" y1="57" x2="66" y2="34"></line>
+          <line id="lead-c" x1="24" y1="66" x2="40" y2="88"></line>
+        </svg>
+
+        <button class="anno" data-id="a" style="left: 53%; top: 62%;" aria-label="Chunk meshing"></button>
+        <button class="anno" data-id="b" style="left: 87%; top: 57%;" aria-label="Noise-driven biomes"></button>
+        <button class="anno" data-id="c" style="left: 24%; top: 66%;" aria-label="Water pass"></button>
+
+        <div class="panel right" id="panel-a" style="--lx: 76%; --ly: 76%;">
+          Chunk meshing. Only block faces with an exposed neighbour are emitted, so the
+          interior of the terrain costs nothing.
+        </div>
+        <div class="panel left" id="panel-b" style="--lx: 66%; --ly: 34%;">
+          Terrain, snowline and foliage all fall out of the same noise field. Nothing
+          here is authored by hand.
+        </div>
+        <div class="panel right" id="panel-c" style="--lx: 40%; --ly: 88%;">
+          Water is a separate translucent pass, drawn over the lit scene rather than into
+          the G-buffer.
+        </div>
+      </div>
+
+      <ul class="channels" id="channels"></ul>
+      <p class="caption" id="caption"></p>
+    </div>
+  </section>
+
+  <div class="work">
+
+    <article class="record">
+      <a class="still" href="https://www.youtube.com/watch?v=13XTC-PXoQw" target="_blank" rel="noopener">
+        <img src="data:image/jpeg;base64,{{THUMB_ATLAS}}" alt="Still from the voxel descent: a fogged surface world of stone towers." width="1000" height="563" loading="lazy" decoding="async">
+      </a>
+      <div class="body">
+      <h2><a href="https://www.youtube.com/watch?v=13XTC-PXoQw" target="_blank" rel="noopener">The Descent</a></h2>
+      <p class="meta">
+        <span>2026</span><span>1:52</span><span>C++ / OpenGL 4.5</span><span>Voxel</span>
+      </p>
+      <p class="note">
+        The camera falls from a fogged surface world down a shaft, through crystal caverns,
+        into molten depths, cut into titled chapters. The whole world is voxel terrain, generated and meshed at runtime.
+      </p>
+      <ul class="systems">
+        <li>Procedural voxel generation</li>
+        <li>Chunk meshing</li>
+        <li>Translucent water pass</li>
+        <li>Emissive lava, HDR bloom</li>
+        <li>Distance fog</li>
+        <li>Keyframe director, chapter cards</li>
+      </ul>
+      </div>
+    </article>
+
+    <article class="record">
+      <a class="still" href="https://www.youtube.com/watch?v=tYD8Lvaz0_I" target="_blank" rel="noopener">
+        <img src="data:image/jpeg;base64,{{THUMB_64K}}" alt="Still from the 64k intro: procedurally generated geometry and lighting." width="1400" height="788" loading="lazy" decoding="async">
+      </a>
+      <div class="body">
+      <h2><a href="https://www.youtube.com/watch?v=tYD8Lvaz0_I" target="_blank" rel="noopener">64k intro in 19 KB</a></h2>
+      <p class="meta">
+        <span>2026</span><span>1:21</span><span>C++ / OpenGL 4.5</span><span>19 KB executable</span>
+      </p>
+      <p class="note">
+        A size-coded demoscene intro that fits in 19 kilobytes. Nothing is loaded from disk:
+        every mesh, material, texture and note is generated at runtime.
+      </p>
+      <ul class="systems">
+        <li>Procedural geometry</li>
+        <li>Procedural texture graph</li>
+        <li>Synthesized soundtrack</li>
+        <li>Keyframe director</li>
+        <li>Executable compression</li>
+        <li>Zero external assets</li>
+      </ul>
+      </div>
+    </article>
+
+
+  </div>
+
+  <section>
+    <h3>Under 64 KB</h3>
+    <p class="lede">
+      Every build of the intro, measured. Raw code and data climb past the 64 KB ceiling;
+      what ships stays at a third of it. The gap between the two lines is the packer.
+    </p>
+
+    <figure class="chart">
+      <svg viewBox="-46 -14 762 262" role="img"
+           aria-label="Executable size over nine days. Raw code and data rises past the 64 KB ceiling while the packed executable stays near 21 KB.">
+        <line class="ceil" x1="0" y1="14" x2="700" y2="14"></line>
+        <text class="tick" x="-8" y="17" text-anchor="end">64 KB</text>
+        <text class="tick" x="-8" y="153" text-anchor="end">21 KB</text>
+        <text class="tick" x="-8" y="209" text-anchor="end">4 KB</text>
+        <polyline class="raw" points="0,200.7 27.4,157.2 31.2,121.8 37.6,113.8 38.2,113.8 42.7,110.6 43.7,107.4 51.4,94.5 66.4,89.7 66.5,89.7 66.8,88.1 70.8,88.1 105.9,81.6 110.6,81.6 124.4,70.3 125.9,70.3 144.6,67.1 146.9,67.1 174.8,60.7 194,52.6 196.5,52.6 295.8,52.6 347.6,43 348.9,43 350.8,43 354.4,43 354.7,41.4 355.1,41.4 355.9,39.8 356.5,41.4 356.6,41.4 383.4,39.8 385.2,38.2 385.7,38.2 387.2,36.6 387.9,36.6 388.5,36.6 388.5,36.6 544.6,10.8 545.9,9.2 546.9,9.2 583.4,10.8 585.4,9.2 585.7,9.2 587.1,9.2 595.9,9.2 597.1,9.2 597.8,10.8 598.2,10.8 612.3,10.8 618.8,10.8 621.1,10.8 700,10.8"></polyline>
+        <polyline class="packed" points="0,205.7 27.4,190.8 31.2,182.6 37.6,181.2 38.2,181.2 42.7,180.4 43.7,179.3 51.4,173.2 66.4,170.4 66.5,170.4 66.8,170.4 70.8,170.4 105.9,168.3 110.6,168 124.4,164.3 125.9,164.3 144.6,163.2 146.9,163.2 174.8,161.5 194,159.3 196.5,159.3 295.8,159.3 347.6,157.1 348.9,156.8 350.8,156.7 354.4,156.7 354.7,156.5 355.1,156.5 355.9,156.5 356.5,156.5 356.6,156.4 383.4,156.4 385.2,155.9 385.7,155.8 387.2,155.4 387.9,155.4 388.5,155.4 388.5,155.4 544.6,151.8 545.9,151.3 546.9,151.6 583.4,151.8 585.4,151.5 585.7,151.5 587.1,151.5 595.9,151.5 597.1,151.4 597.8,151.7 598.2,151.7 612.3,151.7 618.8,151.7 700,151.7"></polyline>
+        <circle class="dot" cx="0" cy="205.7" r="3"></circle>
+        <circle class="dot" cx="700" cy="151.7" r="3"></circle>
+        <text class="tick" x="0" y="238">1 Aug</text>
+        <text class="tick" x="700" y="238" text-anchor="end">9 Aug</text>
+      </svg>
+      <figcaption>
+        <span><span class="key raw"></span>raw code and data</span>
+        <span><span class="key packed"></span>packed executable</span>
+      </figcaption>
+    </figure>
+
+    <dl class="stack">
+      <dt>Final</dt>
+      <dd>21,731 bytes, 33.6% of the 64 KB budget</dd>
+      <dt>Raw</dt>
+      <dd>67,072 bytes of code and data at its peak, over the ceiling on its own</dd>
+      <dt>Shaders</dt>
+      <dd>50,259 bytes of GLSL after minification, inside that 21 KB</dd>
+      <dt>Packer</dt>
+      <dd>kkrunchy <code>--best --refsize 64</code>, two variants benchmarked per build</dd>
+      <dt>Binary</dt>
+      <dd>32-bit x86 PE, no C runtime</dd>
+      <dt>On disk</dt>
+      <dd>Nothing. Geometry, materials and the soundtrack are all generated at startup</dd>
+    </dl>
+
+    <p class="note">
+      53 measured builds over nine days. Regressions were tracked to the byte and reverted
+      when they cost more than they saved. One entry in the log reads
+      &ldquo;noinline on beams helpers: +2 B, reverted&rdquo;.
+    </p>
+  </section>
+
+  <section>
+    <h3>Eight ways to light it</h3>
+    <p class="lede">
+      One sphere, one cube, one torus, raymarched from the same distance field, lit eight
+      different ways, one per bar of the track. Same geometry every time; only the
+      shading model changes.
+    </p>
+
+    <div class="decomp">
+      <ul class="subjects shade" id="shaders">
+        <li><button aria-pressed="true"  data-m="0">PBR</button></li>
+        <li><button aria-pressed="false" data-m="1">Toon</button></li>
+        <li><button aria-pressed="false" data-m="2">Wireframe</button></li>
+        <li><button aria-pressed="false" data-m="3">Iridescent</button></li>
+        <li><button aria-pressed="false" data-m="4">Hatching</button></li>
+        <li><button aria-pressed="false" data-m="5">Fresnel</button></li>
+        <li><button aria-pressed="false" data-m="6">Matcap</button></li>
+        <li><button aria-pressed="false" data-m="7">Gooch</button></li>
+      </ul>
+
+      <div class="shot" id="shadeStage">
+        <img class="lay on" data-m="0" src="data:image/jpeg;base64,{{SH_0}}" alt="Physically based shading on a sphere, cube and torus." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="1" src="data:image/jpeg;base64,{{SH_1}}" alt="Toon shading, diffuse quantised into bands." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="2" src="data:image/jpeg;base64,{{SH_2}}" alt="Wireframe shading, glowing silhouette edges on dark bodies." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="3" src="data:image/jpeg;base64,{{SH_3}}" alt="Iridescent shading, thin-film colour shifting with view angle." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="4" src="data:image/jpeg;base64,{{SH_4}}" alt="Hatching, stroke density standing in for tone." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="5" src="data:image/jpeg;base64,{{SH_5}}" alt="Fresnel rim weighting at grazing angles." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="6" src="data:image/jpeg;base64,{{SH_6}}" alt="Matcap, lighting sampled from a view-space lookup." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="7" src="data:image/jpeg;base64,{{SH_7}}" alt="Gooch shading, warm to cool tone mapping." width="1400" height="788" loading="lazy" decoding="async">
+      </div>
+
+      <p class="caption" id="shadeCap"></p>
+    </div>
+  </section>
+
+  <section>
+    <h3>Eight stones</h3>
+    <p class="lede">
+      The centre body cycles through eight shapes and materials while the lasers keep
+      firing, so you can watch the same beams bend, split and bounce differently through
+      each one. Refractive indices are the real ones; colour comes from Beer-Lambert
+      absorption rather than a tint.
+    </p>
+
+    <div class="decomp">
+      <ul class="subjects shade" id="stones">
+        <li><button aria-pressed="true"  data-m="0">Water</button></li>
+        <li><button aria-pressed="false" data-m="1">Emerald</button></li>
+        <li><button aria-pressed="false" data-m="2">Ice</button></li>
+        <li><button aria-pressed="false" data-m="3">Diamond</button></li>
+        <li><button aria-pressed="false" data-m="4">Sapphire</button></li>
+        <li><button aria-pressed="false" data-m="5">Glass</button></li>
+        <li><button aria-pressed="false" data-m="6">Diamond II</button></li>
+        <li><button aria-pressed="false" data-m="7">Ruby</button></li>
+        <li><button aria-pressed="false" data-m="8">Transition</button></li>
+      </ul>
+
+      <div class="shot" id="stoneStage">
+        <img class="lay on" data-m="0" src="data:image/jpeg;base64,{{GEM_0}}" alt="Water sphere, refractive index 1.33." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="1" src="data:image/jpeg;base64,{{GEM_1}}" alt="Emerald hexagonal prism, refractive index 1.55." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="2" src="data:image/jpeg;base64,{{GEM_2}}" alt="Ice cube, refractive index 1.50." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="3" src="data:image/jpeg;base64,{{GEM_3}}" alt="Diamond tetrahedron, refractive index 2.42." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="4" src="data:image/jpeg;base64,{{GEM_4}}" alt="Sapphire octahedron, refractive index 1.77." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="5" src="data:image/jpeg;base64,{{GEM_5}}" alt="Glass sphere, refractive index 1.50." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="6" src="data:image/jpeg;base64,{{GEM_6}}" alt="Diamond cube, refractive index 2.42." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="7" src="data:image/jpeg;base64,{{GEM_7}}" alt="Ruby tetrahedron, refractive index 1.77." width="1400" height="788" loading="lazy" decoding="async">
+        <img class="lay"    data-m="8" src="data:image/jpeg;base64,{{GEM_TEAR}}" alt="The stone mid-change, shredded into blocks between the outgoing and incoming shape." width="1400" height="788" loading="lazy" decoding="async">
+      </div>
+
+      <p class="caption" id="stoneCap"></p>
+    </div>
+
+    <dl class="stack">
+      <dt>Intersection</dt>
+      <dd>Analytic, not marched. Faceted solids are intersected as a set of planes</dd>
+      <dt>Transport</dt>
+      <dd>Reflection and refraction per hit, with total internal reflection at steep angles</dd>
+      <dt>Colour</dt>
+      <dd>Beer-Lambert absorption through the body, so thickness decides saturation</dd>
+      <dt>Beams</dt>
+      <dd>Traced on the CPU, then handed to the shader as segments</dd>
+      <dt>Cost</dt>
+      <dd>Cube and octahedron are the slow presets: more planes, more intersection work</dd>
+    </dl>
+  </section>
+
+    <article class="record">
+      <a class="still" href="https://www.youtube.com/watch?v=P5Y6Vqw8sb4" target="_blank" rel="noopener">
+        <img src="data:image/jpeg;base64,{{THUMB_CASA}}" alt="Still from the Casablanca renderer: the city rendered in real time from OpenStreetMap data." width="1280" height="720" loading="lazy" decoding="async">
+      </a>
+      <div class="body">
+      <h2><a href="https://www.youtube.com/watch?v=P5Y6Vqw8sb4" target="_blank" rel="noopener">Casablanca in real time, 134,000 buildings</a></h2>
+      <p class="meta">
+        <span>2026</span><span>1:25</span><span>C++ / OpenGL 4.5</span><span>220 km&sup2;</span>
+      </p>
+      <p class="note">
+        The whole city at interactive framerates, from OpenStreetMap footprints plus machine-learning
+        gap-fill. Built for real-estate visualization: every building can be queried, not just looked at.
+      </p>
+      <ul class="systems">
+        <li>Spatial tiling, frustum culling</li>
+        <li>Merged far-LOD</li>
+        <li>Cascaded shadows, real solar position</li>
+        <li>Reverse-Z depth</li>
+        <li>HDR bloom, ACES tonemap</li>
+        <li>Procedural lit windows at night</li>
+        <li>Ocean from a coastline-derived mask</li>
+        <li>Sea-view raycasting per building</li>
+        <li>Sun-hours against real shadows</li>
+        <li>Price heatmap from market data</li>
+        <li>Road graph from OSM ways</li>
+        <li>Pathfinding for driving tours</li>
+        <li>Arabic text shaping</li>
+        <li>Binary scene cache</li>
+      </ul>
+      </div>
+    </article>
+
+  <script>
+    (function () {
+      var picker = document.getElementById("stones");
+      var stage  = document.getElementById("stoneStage");
+      var cap    = document.getElementById("stoneCap");
+      if (!picker || !stage || !cap) return;
+
+      var NOTES = [
+        "Sphere, IOR 1.33. Barely bends anything. It is the reference the harder stones are read against.",
+        "Hexagonal prism, IOR 1.55. Flat faces send each beam off in one direction instead of spreading it.",
+        "Cube, IOR 1.50. Six planes, and the beam that enters one face often leaves through another entirely.",
+        "Tetrahedron, IOR 2.42. Diamond's index is high enough that most beams never escape on the first try.",
+        "Octahedron, IOR 1.77. Eight faces, the most intersection work of any preset here.",
+        "Sphere, IOR 1.50. The same glass as the cube, so the shape alone accounts for the difference.",
+        "Cube again at IOR 2.42. The pairing is deliberate: same solid, diamond's bending instead of ice's.",
+        "Tetrahedron, IOR 1.77. Absorption removes green and blue, so what leaves the stone is red.",
+        "Mid-change. The stone does not crossfade between presets. Each block picks the outgoing or the incoming shape, so the solid shreds while every ray still hits exactly one thing."
+      ];
+
+      var imgs = stage.querySelectorAll("img.lay");
+      var btns = picker.querySelectorAll("button");
+
+      function pick(n) {
+        for (var i = 0; i < imgs.length; i++) {
+          imgs[i].classList.toggle("on", Number(imgs[i].dataset.m) === n);
+        }
+        for (var b = 0; b < btns.length; b++) {
+          btns[b].setAttribute("aria-pressed", String(Number(btns[b].dataset.m) === n));
+        }
+        cap.textContent = NOTES[n];
+      }
+
+      picker.addEventListener("click", function (e) {
+        var btn = e.target.closest("button");
+        if (btn) pick(Number(btn.dataset.m));
+      });
+
+      pick(0);
+    })();
+  </script>
+
+  <section>
+    <h3>The engine</h3>
+    <p class="lede">
+      Atlas. Deferred, physically based, written from nothing. No engine, no framework,
+      no rendering library. All three pieces above run on it.
+    </p>
+    <ul class="systems">
+      <li>Deferred PBR, clustered shading</li>
+      <li>Cascaded, spot and point shadows</li>
+      <li>Image-based lighting</li>
+      <li>SSAO, SSR, SSGI</li>
+      <li>Volumetric light shafts</li>
+      <li>Depth of field, bloom, FXAA</li>
+      <li>Order-independent transparency</li>
+      <li>GPU compute particles</li>
+      <li>SDF raymarching</li>
+      <li>Marching cubes, voxel meshing</li>
+      <li>Procedural texture engine</li>
+      <li>Keyframe director, audio sync</li>
+    </ul>
+  </section>
+
+</div>
+
+<script>
+  (function () {
+    var stage    = document.getElementById("stage");
+    var grab     = document.getElementById("grab");
+    var caption  = document.getElementById("caption");
+    var channels = document.getElementById("channels");
+    var subjects = document.getElementById("subjects");
+
+    // Which buffers actually carry information per scene. Metallic and roughness
+    // are constant in all three (the voxel and SDF paths write fixed material
+    // values), and Sanctuary writes no albedo at all, because it is raymarched, so only
+    // the normal and position targets are populated. Offering empty channels
+    // would just be flat colour, so they aren't listed.
+    var DATA = {
+      w: {
+        final: "w_final",
+        chans: [
+          { k: "w_albedo",   label: "Albedo",         cap: "Base colour per block face. No lighting, no shadow. The terrain palette before anything is done to it." },
+          { k: "w_normal",   label: "Normal",         cap: "Surface orientation packed into colour. Voxel faces are axis-aligned, so the whole world resolves to six flat hues." },
+          { k: "w_worldpos", label: "World position", cap: "World position per pixel, wrapped for legibility. Lets the lighting pass reconstruct where a pixel is without re-rasterising." },
+          { k: "w_depth",    label: "Depth",          cap: "View-space depth. Feeds ambient occlusion, fog and depth of field, and shows how far the chunk streamer is keeping geometry resident." }
+        ]
+      },
+      f: {
+        final: "f_final",
+        chans: [
+          { k: "f_albedo",   label: "Albedo",         cap: "Base colour of the fold-space surface, evaluated per raymarched hit rather than sampled from a texture." },
+          { k: "f_normal",   label: "Normal",         cap: "Normals recovered from the distance field's gradient. There is no mesh here to interpolate them from." },
+          { k: "f_worldpos", label: "World position", cap: "Where each ray terminated, written into the same buffer the rasterised scenes use." },
+          { k: "f_depth",    label: "Depth",          cap: "Raymarched depth. The wireframe box edges resolve at their own distances, which is what lets post effects treat this like any other geometry." }
+        ]
+      },
+      s: {
+        final: "s_final",
+        chans: [
+          { k: "s_normal",   label: "Normal",         cap: "The arcade is raymarched, not meshed, yet it still writes normals, so screen-space ambient occlusion and fog work on it exactly as they do on real geometry." },
+          { k: "s_worldpos", label: "World position", cap: "Ray termination points. Everything downstream of the G-buffer treats this scene identically to a rasterised one." }
+        ]
+      }
+    };
+
+    var layers = stage.querySelectorAll("img.lay");
+
+    function showLayers(finalKey, chanKey) {
+      for (var i = 0; i < layers.length; i++) {
+        var k = layers[i].dataset.k;
+        layers[i].classList.toggle("on", k === finalKey || k === chanKey);
+      }
+    }
+
+    function setChannel(subject, idx) {
+      var d = DATA[subject];
+      showLayers(d.final, d.chans[idx].k);
+      caption.textContent = d.chans[idx].cap;
+      var btns = channels.querySelectorAll("button");
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].setAttribute("aria-pressed", String(i === idx));
+      }
+    }
+
+    function setSubject(subject) {
+      stage.setAttribute("data-subject", subject);
+      stage.removeAttribute("data-active");   // drop any latched callout
+      latched = null;
+
+      var sbtns = subjects.querySelectorAll("button");
+      for (var i = 0; i < sbtns.length; i++) {
+        sbtns[i].setAttribute("aria-pressed", String(sbtns[i].dataset.s === subject));
+      }
+
+      // Rebuild the channel chips for this scene.
+      channels.innerHTML = "";
+      var d = DATA[subject];
+      for (var c = 0; c < d.chans.length; c++) {
+        (function (index) {
+          var li = document.createElement("li");
+          var b  = document.createElement("button");
+          b.textContent = d.chans[index].label;
+          b.setAttribute("aria-pressed", String(index === 0));
+          b.addEventListener("click", function () { setChannel(subject, index); });
+          li.appendChild(b);
+          channels.appendChild(li);
+        })(c);
+      }
+      setChannel(subject, 0);
+    }
+
+    subjects.addEventListener("click", function (e) {
+      var btn = e.target.closest("button");
+      if (btn) setSubject(btn.dataset.s);
+    });
+
+    // ---- wipe ----
+    function setPos(v) { stage.style.setProperty("--pos", v + "%"); }
+    grab.addEventListener("input", function () { setPos(grab.value); });
+    setPos(grab.value);
+
+    // ---- callouts (voxel frame only) ----
+    // One is active at a time, held on the stage as a data attribute; CSS lights
+    // the matching leader line and panel. Hover reveals on desktop, click latches
+    // so it works on touch.
+    var annos   = stage.querySelectorAll(".anno");
+    var latched = null;
+
+    function show(id) { stage.setAttribute("data-active", id); }
+    function clear()  { if (!latched) stage.removeAttribute("data-active"); }
+
+    for (var k = 0; k < annos.length; k++) {
+      (function (el) {
+        var id = el.dataset.id;
+        el.addEventListener("mouseenter", function () { if (!latched) show(id); });
+        el.addEventListener("mouseleave", clear);
+        el.addEventListener("focus",      function () { show(id); });
+        el.addEventListener("blur",       clear);
+        el.addEventListener("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (latched === id) { latched = null; stage.removeAttribute("data-active"); }
+          else                { latched = id;   show(id); }
+        });
+      })(annos[k]);
+    }
+
+    // Dragging the wipe dismisses a latched panel so it can't sit in the way.
+    grab.addEventListener("pointerdown", function () {
+      latched = null;
+      stage.removeAttribute("data-active");
+    });
+
+    setSubject("w");
+  })();
+</script>
+
+<script>
+  (function () {
+    var picker = document.getElementById("shaders");
+    var stage  = document.getElementById("shadeStage");
+    var cap    = document.getElementById("shadeCap");
+    if (!picker || !stage || !cap) return;
+
+    var NOTES = [
+      "Physically based. Microfacet specular with energy conservation. The reference the other seven are departures from.",
+      "Diffuse quantised into bands, so the terminator lands as a hard edge instead of a gradient.",
+      "Edges recovered from the distance field itself: bodies go dark and only the silhouette carries light.",
+      "Thin-film interference. The hue shifts with view angle rather than with the light.",
+      "Tone carried by stroke density instead of brightness. Darker regions get more strokes.",
+      "Weighted by grazing angle, so the rim lights up and the facing surface stays dim.",
+      "Lighting sampled from a view-space lookup, so a whole environment costs one fetch.",
+      "Warm-to-cool tone shading. Built for technical illustration, where shape has to read without shadows hiding detail."
+    ];
+
+    var imgs = stage.querySelectorAll("img.lay");
+    var btns = picker.querySelectorAll("button");
+
+    function pick(n) {
+      for (var i = 0; i < imgs.length; i++) {
+        imgs[i].classList.toggle("on", Number(imgs[i].dataset.m) === n);
+      }
+      for (var b = 0; b < btns.length; b++) {
+        btns[b].setAttribute("aria-pressed", String(Number(btns[b].dataset.m) === n));
+      }
+      cap.textContent = NOTES[n];
+    }
+
+    picker.addEventListener("click", function (e) {
+      var btn = e.target.closest("button");
+      if (btn) pick(Number(btn.dataset.m));
+    });
+
+    pick(0);
+  })();
+</script>
+
+<script>
+  (function () {
+    var chart = document.querySelector(".chart");
+    if (!chart) return;
+
+    var lines = chart.querySelectorAll("polyline");
+    if (!lines.length) return;
+
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) {
+      chart.classList.add("drawn");
+      return;
+    }
+
+    // Dash the whole path and push it out of view, so the transition back to
+    // zero reads as the line being drawn. Each polyline has its own length, so
+    // this has to be measured rather than guessed at.
+    function prime() {
+      for (var i = 0; i < lines.length; i++) {
+        // Overshoot the measured length by a few percent. getTotalLength on a
+        // polyline can come back marginally short, and a dash shorter than the
+        // path leaves the line permanently stopping before its last point.
+        var len = lines[i].getTotalLength() * 1.04;
+        // Transition off while resetting, or leaving the panel would play the
+        // line backwards on its way out.
+        lines[i].style.transition       = "none";
+        lines[i].style.strokeDasharray  = len + " " + len;
+        lines[i].style.strokeDashoffset = len;
+      }
+    }
+
+    // Once a line has finished drawing, drop the dash entirely. Whatever the
+    // measurement was, the resting state is then a plain solid stroke.
+    function settle(e) {
+      if (e.propertyName === "stroke-dashoffset") {
+        e.target.style.strokeDasharray  = "none";
+        e.target.style.strokeDashoffset = "0";
+      }
+    }
+    for (var n = 0; n < lines.length; n++) {
+      lines[n].addEventListener("transitionend", settle);
+    }
+
+    function draw() {
+      // Read back a layout value first: without it the browser may collapse the
+      // priming and the draw into one style pass and the line simply appears.
+      chart.getBoundingClientRect();
+      for (var i = 0; i < lines.length; i++) {
+        lines[i].style.transition = "";        // hand timing back to the CSS
+        lines[i].style.strokeDashoffset = "0";
+      }
+      chart.classList.add("drawn");
+    }
+
+    prime();
+
+    // Replays on every return rather than firing once. The page snaps section
+    // by section, so scrolling back up is a normal thing to do here.
+    var io = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) {
+          draw();
+        } else {
+          chart.classList.remove("drawn");
+          prime();
+        }
+      }
+    }, { threshold: 0.35 });
+
+    io.observe(chart);
+  })();
+</script>
