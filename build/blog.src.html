@@ -1,16 +1,30 @@
 <nav class="nav">
   <a class="mark" href="/">sh0drun</a>
-  <a href="/blog/" aria-current="page">Work</a>
-  <a href="/#contact">Contact</a>
+  <span class="sections">
+    <a href="#frame">Inside a frame</a>
+    <a href="#intro">64k intro</a>
+    <a href="#shading">Shading</a>
+    <a href="#stones">Stones</a>
+    <a href="#engine">The engine</a>
+  </span>
+  <a class="page" href="/">Home</a>
 </nav>
 <div class="wrap">
 
-  <section>
-    <h3>Inside a frame</h3>
+  <section id="top">
+    <h1>Work</h1>
+    <p class="lede">
+      Real-time rendering, written from nothing. Everything below is engine
+      output at the camera it was captured from, not a diagram.
+    </p>
+  </section>
+
+  <section id="frame">
+    <h2>Inside a frame</h2>
     <p class="lede">
       Three frames from the reel, and the buffers each one is assembled from. Pick a scene,
       drag the divider, switch the channel underneath. Every image is engine output at the
-      same camera. Nothing here is a diagram.
+      same camera.
     </p>
 
     <div class="decomp">
@@ -125,8 +139,8 @@
 
   </div>
 
-  <section>
-    <h3>Under 64 KB</h3>
+  <section id="intro">
+    <h2>Under 64 KB</h2>
     <p class="lede">
       Every build of the intro, measured. Raw code and data climb past the 64 KB ceiling;
       what ships stays at a third of it. The gap between the two lines is the packer.
@@ -174,8 +188,8 @@
     </p>
   </section>
 
-  <section>
-    <h3>Eight ways to light it</h3>
+  <section id="shading">
+    <h2>Eight ways to light it</h2>
     <p class="lede">
       One sphere, one cube, one torus, raymarched from the same distance field, lit eight
       different ways, one per bar of the track. Same geometry every time; only the
@@ -209,8 +223,8 @@
     </div>
   </section>
 
-  <section>
-    <h3>Eight stones</h3>
+  <section id="stones">
+    <h2>Eight stones</h2>
     <p class="lede">
       The centre body cycles through eight shapes and materials while the lasers keep
       firing, so you can watch the same beams bend, split and bounce differently through
@@ -333,8 +347,8 @@
     })();
   </script>
 
-  <section>
-    <h3>The engine</h3>
+  <section id="engine">
+    <h2>The engine</h2>
     <p class="lede">
       Atlas. Deferred, physically based, written from nothing. No engine, no framework,
       no rendering library. All three pieces above run on it.
