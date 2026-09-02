@@ -132,7 +132,9 @@
     margin: 0 0 1.5rem;
     color: var(--accent);
   }
-  .lede { margin: 0 0 2.5rem; color: var(--muted); max-width: 62ch; }
+  /* In a monospace face ch is a true character width, so 62ch gave exactly 62
+     characters. Widened to sit with the timeline rather than beside it. */
+  .lede { margin: 0 0 2.5rem; color: var(--muted); max-width: 130ch; }
 
   /* ---- work: the image is the item, text sits on it ---- */
 
@@ -182,7 +184,7 @@
   }
 
   .note { margin: 0 0 1.25rem; color: var(--text); }
-  section .note { max-width: 62ch; color: var(--muted); }
+  section .note { max-width: 130ch; color: var(--muted); }
 
   /* Links inside running text. Underlined rather than coloured, since the
      palette has no hue to spend and white already means emphasis. */

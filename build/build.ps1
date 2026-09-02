@@ -15,7 +15,7 @@ $domain = 'https://sh0drun.dev'
 $pages = @(
     @{ src = 'home.src.html'; out = 'index.html'
        title = 'Anass Razik (sh0drun), software engineer'
-       desc  = 'Software engineer in Casablanca. Eight years of backend systems, and things built from nothing: a compiled language, parsers, a tool for tracker musicians, renderers with no engine underneath.'
+       desc  = 'Software engineer in Casablanca. Eight years of backend work on payments, commodity trading and travel finance, plus a compiled language, parsers, a tool for tracker musicians, and renderers with no engine underneath.'
        url   = "$domain/" }
     @{ src = 'blog.src.html'; out = 'blog\index.html'
        title = 'Work, Anass Razik (sh0drun)'
@@ -121,8 +121,13 @@ if ($InlinePath) {
     $page = $pages[0]
     $body = Get-Content "$PSScriptRoot\$($page.src)" -Raw -Encoding UTF8
     $inline = Wrap-Document $page (Resolve-Assets $css -AsDataUri) (Resolve-Assets $body -AsDataUri)
+    # Standalone file, so every root-relative link has to become absolute or it
+    # resolves against whatever host is serving the artifact.
+    $inline = $inline -replace 'href="/blog/"', "href=`"$domain/blog/`" target=`"_blank`" rel=`"noopener`""
+    $inline = $inline -replace 'href="/"', "href=`"$domain/`" target=`"_blank`" rel=`"noopener`""
+    $inline = $inline -replace 'href="/assets/favicon\.svg"', "href=`"$domain/assets/favicon.svg`""
     if ($inline -match '\{\{[A-Za-z0-9_.\-]+\}\}') { throw 'inline: unreplaced placeholder' }
-    if ($inline -match '(src|url\()\s*"?/?assets/') { throw 'inline: a relative path survived' }
+    if ($inline -match '(src|url\(|href=)\s*"?/(?!/)') { throw 'inline: a root-relative path survived' }
     [IO.File]::WriteAllText($InlinePath, $inline, $utf8)
     '{0}  {1} MB  {2} data URIs' -f $InlinePath, [math]::Round((Get-Item $InlinePath).Length / 1mb, 2), ([regex]::Matches($inline, 'base64,')).Count
 }
