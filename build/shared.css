@@ -21,17 +21,40 @@
     font-weight: 700; font-style: normal; font-display: block;
   }
 
-  /* Dark only. A light ground fights every image on the page. No hue in the
-     interface either, the renders carry enough. Neutrals take a cool cast. */
+  /* The tokens are registered as colours so a theme switch interpolates.
+     Everything that reads a token follows it, which is one transition on the
+     root instead of one per element, and hover transitions stay their own.
+     The transition is armed by the theme script after first paint, so a
+     stored theme never fades in on load. */
+  @property --ground { syntax: "<color>"; inherits: true; initial-value: #080A0E; }
+  @property --raise  { syntax: "<color>"; inherits: true; initial-value: #12161C; }
+  @property --line   { syntax: "<color>"; inherits: true; initial-value: rgba(216,222,230,0.14); }
+  @property --text   { syntax: "<color>"; inherits: true; initial-value: #D8DEE6; }
+  @property --muted  { syntax: "<color>"; inherits: true; initial-value: rgba(216,222,230,0.68); }
+  @property --dim    { syntax: "<color>"; inherits: true; initial-value: rgba(216,222,230,0.33); }
+  @property --accent { syntax: "<color>"; inherits: true; initial-value: #FFFFFF; }
+  @property --mark   { syntax: "<color>"; inherits: true; initial-value: #FFFFFF; }
+  @property --nav    { syntax: "<color>"; inherits: true; initial-value: rgba(8,10,14,0.72); }
+  :root.themes {
+    transition: --ground 450ms linear, --raise 450ms linear, --line 450ms linear,
+                --text 450ms linear, --muted 450ms linear, --dim 450ms linear,
+                --accent 450ms linear, --mark 450ms linear, --nav 450ms linear;
+  }
+  :root.themes .sprite symbol, :root.themes .sprite path { transition: fill 450ms linear; }
+
+  /* Dark is the default. No hue in the interface, the renders carry enough.
+     Neutrals take a cool cast. */
   :root {
     --ground:  #080A0E;
     --raise:   #12161C;
     --line:    rgba(216,222,230,0.14);
     --text:    #D8DEE6;
-    --muted:   rgba(216,222,230,0.56);
+    --muted:   rgba(216,222,230,0.68);
     --dim:     rgba(216,222,230,0.33);
     --accent:  #FFFFFF;
+    --mark:    #FFFFFF;
     --scrim:   rgba(5,7,10,0.76);
+    --nav:     rgba(8,10,14,0.72);
 
     --display: "Plex", ui-monospace, monospace;
     --mono: "Plex", ui-monospace, "Cascadia Mono", Consolas, monospace;
@@ -39,6 +62,28 @@
   --name:  "Display", "Plex", ui-monospace, monospace;
     --pad: clamp(1.25rem, 5vw, 5rem);
   }
+
+  /* Plate. An anatomy plate, ink on paper with a single red mark. Accent
+     stays ink here, doing the job white does on dark, and --mark carries the
+     one red. The values are the MRI viewer's, kept identical on purpose. */
+  :root[data-theme="plate"] {
+    --ground:  #F4F1EA;
+    --raise:   #ECE8DF;
+    --line:    rgba(26,25,22,0.14);
+    --text:    #1A1916;
+    --muted:   rgba(26,25,22,0.72);
+    --dim:     rgba(26,25,22,0.45);
+    --accent:  #1A1916;
+    --mark:    #B3261E;
+    --nav:     rgba(244,241,234,0.78);
+    color-scheme: light;
+  }
+  /* Brand colours were chosen for a black ground and most of them vanish on
+     cream. A plate has ink glyphs, so every icon goes to the text colour, and
+     the two knockouts follow the paper. */
+  :root[data-theme="plate"] .sprite symbol,
+  :root[data-theme="plate"] .sprite path { fill: currentColor; }
+  :root[data-theme="plate"] .sprite path[fill="#fff"] { fill: var(--ground); }
 
   * { box-sizing: border-box; }
 
@@ -59,41 +104,15 @@
 
   /* ---- hero ---- */
 
+  /* Type on the ground, nothing behind it. The height keeps the name from
+     sitting at the top of the viewport like a page title. */
   header {
-    position: relative;
-    min-height: min(86vh, 780px);
+    min-height: min(60vh, 560px);
     display: flex;
     align-items: flex-end;
     padding: var(--pad);
-    overflow: hidden;
   }
-  header .bg {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    object-fit: cover;
-    filter: saturate(0.9);
-  }
-
-  /* The live shader sits over the still. It only reveals itself once the
-     context, the compile and the link have all succeeded, so anything without
-     WebGL2 keeps the image and never sees a blank rectangle. */
-  header .gl {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    display: block;
-    opacity: 0;
-    transition: opacity 700ms ease;
-  }
-  header .gl.on { opacity: 1; }
-  /* Horizontal scrim, the device both references use to keep type legible
-     over an image without dimming the whole picture. */
-  header::after {
-    content: ""; position: absolute; inset: 0;
-    background:
-      linear-gradient(90deg, var(--scrim) 0%, rgba(4,5,7,0.45) 45%, transparent 78%),
-      linear-gradient(0deg, var(--scrim) 0%, transparent 55%);
-  }
-  header .lead { position: relative; z-index: 1; max-width: 110ch; }
+  header .lead { max-width: 110ch; }
 
   /* Monospace is wide by design, so display sizes need the tracking pulled in
      hard or the word falls apart across the screen. */
@@ -115,7 +134,7 @@
 
 
   .standfirst { margin: 0; color: var(--text); max-width: 110ch; }
-  .standfirst strong { color: var(--accent); font-weight: 400; }
+  .standfirst strong { color: var(--mark); font-weight: 400; }
 
   /* ---- headings ---- */
 
@@ -132,15 +151,17 @@
     margin: 0 0 1.5rem;
     color: var(--accent);
   }
-  /* In a monospace face ch is a true character width, so 62ch gave exactly 62
-     characters. Widened to sit with the timeline rather than beside it. */
-  .lede { margin: 0 0 2.5rem; color: var(--muted); max-width: 130ch; }
+  .lede { margin: 0 0 2.5rem; color: var(--muted); max-width: 145ch; }
 
   /* ---- work: the image is the item, text sits on it ---- */
 
   .work { display: flex; flex-direction: column; }
 
   .record {
+    /* Photographs of dark renders with type over them. They keep the dark
+       palette on every theme rather than putting ink on a black picture. */
+    --text: #D8DEE6; --muted: rgba(216,222,230,0.68); --dim: rgba(216,222,230,0.33);
+    --accent: #FFFFFF; --line: rgba(216,222,230,0.14); --scrim: rgba(5,7,10,0.76);
     position: relative;
     border-top: 1px solid var(--line);
     min-height: min(78vh, 680px);
@@ -184,7 +205,7 @@
   }
 
   .note { margin: 0 0 1.25rem; color: var(--text); }
-  section .note { max-width: 130ch; color: var(--muted); }
+  section .note { max-width: 145ch; color: var(--muted); }
 
   /* Links inside running text. Underlined rather than coloured, since the
      palette has no hue to spend and white already means emphasis. */
@@ -230,7 +251,7 @@
     font-size: 1rem; text-transform: uppercase; letter-spacing: -0.02em;
     color: var(--text); margin-right: 0.5rem;
   }
-  .roles .now .what b { color: var(--accent); }
+  .roles .now .what b { color: var(--mark); }
   /* ---- experience ----
      The only section taller than a viewport. It anchors to the top and does not
      force a snap stop, so a scroll reads through it rather than being held. */
@@ -249,23 +270,25 @@
     font-size: clamp(1rem, 2vw, 1.3rem); text-transform: uppercase;
     letter-spacing: -0.02em; color: var(--text); margin-right: 0.75rem;
   }
-  .xp > li:first-child .co { color: var(--accent); }
+  .xp > li:first-child .co { color: var(--mark); }
   .ro { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); }
   .dt {
     font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--dim); text-align: right;
+    text-transform: uppercase; color: var(--muted); text-align: right;
     grid-row: span 2; font-variant-numeric: tabular-nums;
   }
-  .dt span { color: var(--line); }
+  .dt span { color: var(--dim); }
 
   .xp p {
     margin: 0 0 0.75rem; font-family: var(--mono); font-size: 0.8125rem;
     line-height: 1.65; color: var(--muted); max-width: 76ch;
   }
   .xp ul { margin: 0 0 1rem; padding: 0; list-style: none; max-width: 82ch; }
+  /* The bullets are the substance of each role, so they read at the same
+     size and grey as the summary above them rather than a step below it. */
   .xp ul li {
-    font-family: var(--mono); font-size: 0.78125rem; line-height: 1.6;
-    color: var(--dim); padding-left: 1.1rem; position: relative;
+    font-family: var(--mono); font-size: 0.8125rem; line-height: 1.6;
+    color: var(--muted); padding-left: 1.1rem; position: relative;
   }
   .xp ul li::before { content: ">"; position: absolute; left: 0; color: var(--line); }
 
@@ -300,7 +323,7 @@
     background: var(--muted);
     transition: transform 620ms cubic-bezier(.22,.61,.36,1);
   }
-  .roles .now .bar { background: var(--accent); }
+  .roles .now .bar { background: var(--mark); }
   /* Time off, not a role: drawn hollow. */
   .roles .off .bar { background: none; border: 1px dashed var(--dim); }
   .roles.drawn .bar { transform: translateY(-50%) scaleX(1); }
@@ -675,7 +698,7 @@
     padding: 0.7rem var(--pad);
     font-family: var(--mono); font-size: 0.6875rem;
     letter-spacing: 0.14em; text-transform: uppercase;
-    background: rgba(8, 10, 14, 0.72);
+    background: var(--nav);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--line);
   }
@@ -685,8 +708,15 @@
   }
   /* Section links sit in the middle, the other page pushes to the right. */
   .nav .sections { display: flex; gap: 1.25rem; margin: 0 auto 0 1rem; }
-  .nav .page { position: relative; padding-left: 1.25rem; }
-  .nav .page::before {
+  .nav .page, .nav .theme { position: relative; padding-left: 1.25rem; }
+  .nav .theme {
+    font: inherit; letter-spacing: inherit; text-transform: inherit;
+    color: var(--dim); background: none; border: 0; cursor: pointer;
+    padding-top: 0; padding-right: 0; padding-bottom: 0;
+  }
+  .nav .theme:hover { color: var(--text); }
+  .nav .theme:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .nav .page::before, .nav .theme::before {
     content: ""; position: absolute; left: 0; top: 50%;
     width: 1px; height: 0.9em; transform: translateY(-50%);
     background: var(--line);
@@ -697,6 +727,7 @@
     .nav .mark { margin-right: auto; }
     .nav .page { padding-left: 0; }
     .nav .page::before { display: none; }
+    .nav .theme { padding-left: 1rem; }
   }
   .nav a { color: var(--dim); text-decoration: none; }
   .nav a:hover { color: var(--text); }

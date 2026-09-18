@@ -58,8 +58,9 @@ function Wrap-Document {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="$($page.desc)">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#080A0E">
+<script>(function(){try{if(localStorage.getItem("theme")==="plate")document.documentElement.dataset.theme="plate"}catch(e){}})()</script>
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="$($page.url)">
 <meta property="og:type" content="website">
@@ -77,6 +78,29 @@ $style
 </head>
 <body>
 $body
+<script>
+(function () {
+  var root = document.documentElement;
+  var button = document.querySelector(".nav .theme");
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (!button) return;
+  var PLATE = "plate";
+  function current() { return root.dataset.theme === PLATE ? PLATE : "dark"; }
+  function show() {
+    // The button names the theme you would switch to, not the one you are on.
+    button.textContent = current() === PLATE ? "Dark" : "Plate";
+    if (meta) meta.setAttribute("content", getComputedStyle(root).getPropertyValue("--ground").trim());
+  }
+  button.addEventListener("click", function () {
+    if (current() === PLATE) delete root.dataset.theme; else root.dataset.theme = PLATE;
+    try { localStorage.setItem("theme", current()); } catch (e) {}
+    show();
+  });
+  show();
+  // Arm the crossfade only once the stored theme is already on screen.
+  requestAnimationFrame(function () { root.classList.add("themes"); });
+})();
+</script>
 </body>
 </html>
 "@
